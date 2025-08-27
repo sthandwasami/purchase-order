@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Requisitions</title>
+</head>
+<body>
+<h1>Requisitions</h1>
+<div sec:authorize="hasAnyRole('USER', 'HOD')">
+    <a href="/requisitions/new">New Requisition</a>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Item</th>
+        <th>Quantity</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Submitted By</th>
+        <th>Department</th>
+        <th>Created At</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="requisition : ${requisitions}">
+        <td th:text="${requisition.id}"></td>
+        <td th:text="${requisition.item}"></td>
+        <td th:text="${requisition.quantity}"></td>
+        <td th:text="${requisition.priority}"></td>
+        <td th:text="${requisition.status}"></td>
+        <td th:text="${requisition.user.username}"></td>
+        <td th:text="${requisition.department.name}"></td>
+        <td th:text="${#temporals.format(requisition.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        <td>
+            <a th:href="@{/requisitions/{id}(id=${requisition.id})}">View</a>
+            <div sec:authorize="hasRole('HOD')" th:if="${requisition.status.name() == 'PENDING'}">
+                <form th:action="@{/requisitions/{id}/approve(id=${requisition.id})}" method="post" style="display:inline;">
+                    <button type="submit">Approve</button>
+                </form>
+                <form th:action="@{/requisitions/{id}/reject(id=${requisition.id})}" method="post" style="display:inline;">
+                    <input type="text" name="reason" placeholder="Reason for rejection" required/>
+                    <button type="submit">Reject</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
