@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>New Purchase Order</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>body{font-family:Arial,sans-serif;margin:2rem} label{display:block;margin:.5rem 0}</style>
+    </head>
+<body>
+<h1>Create Purchase Order</h1>
+<form action="/buyer/pos" method="post">
+    <label>Requisition
+        <select name="requisitionId" required>
+            <option th:each="r : ${requisitions}" th:value="${r.id}" th:text="${r.id} + ' - ' + ${r.title}">REQ</option>
+        </select>
+    </label>
+    <label>Supplier
+        <select name="supplierId" required>
+            <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}">Supplier</option>
+        </select>
+    </label>
+    <label>Total Amount <input type="number" name="totalAmount" step="0.01" min="0" required/></label>
+    <button type="submit">Create</button>
+ </form>
+</body>
+</html>
+
+

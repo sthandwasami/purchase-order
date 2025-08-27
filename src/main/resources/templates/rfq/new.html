@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>New RFQ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>body{font-family:Arial,sans-serif;margin:2rem} label{display:block;margin:.5rem 0}</style>
+    </head>
+<body>
+<h1>Create RFQ</h1>
+<form action="/buyer/rfqs" method="post">
+    <label>Requisition
+        <select name="requisitionId" required>
+            <option th:each="r : ${requisitions}" th:value="${r.id}" th:text="${r.id} + ' - ' + ${r.title}">REQ</option>
+        </select>
+    </label>
+    <label>Supplier
+        <select name="supplierId" required>
+            <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}">Supplier</option>
+        </select>
+    </label>
+    <label>Notes <input type="text" name="notes"/></label>
+    <button type="submit">Send RFQ</button>
+ </form>
+</body>
+</html>
+
+

@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TempleteApplication" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="cicosy.templete.TempleteApplication" />
+    <module name="templete" />
+    <shortenClasspath name="MANIFEST" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
+
+

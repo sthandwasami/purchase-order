@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>New Supplier</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>body{font-family:Arial,sans-serif;margin:2rem} label{display:block;margin:.5rem 0}</style>
+    </head>
+<body>
+<h1>Add Supplier</h1>
+<form action="/buyer/suppliers" method="post" th:object="${supplier}">
+    <label>Name <input type="text" th:field="*{name}" required/></label>
+    <label>Email <input type="email" th:field="*{email}"/></label>
+    <label>Phone <input type="text" th:field="*{phone}"/></label>
+    <label>Categories (comma separated) <input type="text" th:field="*{categories}"/></label>
+    <button type="submit">Save</button>
+</form>
+</body>
+</html>
+
+

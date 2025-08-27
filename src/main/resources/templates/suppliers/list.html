@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Suppliers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>body{font-family:Arial,sans-serif;margin:2rem} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px}</style>
+    </head>
+<body>
+<h1>Suppliers</h1>
+<p><a th:href="@{'/buyer/suppliers/new'}">Add Supplier</a></p>
+<table>
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Categories</th></tr></thead>
+    <tbody>
+        <tr th:each="s : ${suppliers}">
+            <td><a th:href="@{'/buyer/suppliers/' + ${s.id}}" th:text="${s.name}">Name</a></td>
+            <td th:text="${s.email}">email</td>
+            <td th:text="${s.phone}">phone</td>
+            <td th:text="${s.categories}">categories</td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
+
+

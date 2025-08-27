@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Buyer Consolidated View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>body{font-family:Arial,sans-serif;margin:2rem} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px}</style>
+    </head>
+<body>
+<h1>Consolidated Approved Requisitions</h1>
+<div th:each="entry : ${groups}">
+    <h3 th:text="${#strings.arrayJoin(#strings.split(entry.key, '::'), ' - ')}">MEDIUM - Laptops</h3>
+    <table>
+        <thead><tr><th>ID</th><th>Requester</th><th>Title</th><th>Priority</th></tr></thead>
+        <tbody>
+        <tr th:each="r : ${entry.value}">
+            <td th:text="${r.id}">1</td>
+            <td th:text="${r.requester}">user</td>
+            <td th:text="${r.title}">Title</td>
+            <td th:text="${r.priority}">MEDIUM</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+
+

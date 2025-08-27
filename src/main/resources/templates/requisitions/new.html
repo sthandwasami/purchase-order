@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>New Requisition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>body{font-family:Arial,sans-serif;margin:2rem} label{display:block;margin:0.5rem 0}</style>
+    </head>
+<body>
+<h1>Create Requisition</h1>
+<form action="/requisitions" method="post">
+    <label>Title <input type="text" name="title" required/></label>
+    <label>Description <textarea name="description" rows="3"></textarea></label>
+    <label>Priority
+        <select name="priority">
+            <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}">MEDIUM</option>
+        </select>
+    </label>
+    <button type="submit">Submit</button>
+ </form>
+</body>
+</html>
+
+
