@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
 
@@ -36,9 +38,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/", "/home", "/signup", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login").permitAll()
-                .requestMatchers("/hod/**").hasRole("HOD")
-                .requestMatchers("/buyer/**").hasRole("BUYER")
-                .requestMatchers("/approver/**").hasRole("APPROVER")
+                .requestMatchers("/requisitions/**", "/purchase-orders/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

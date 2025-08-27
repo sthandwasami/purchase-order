@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Purchase Order</title>
+</head>
+<body>
+<h1>Purchase Order Details</h1>
+<div th:if="${purchaseOrder}">
+    <p><strong>ID:</strong> <span th:text="${purchaseOrder.id}"></span></p>
+    <p><strong>Requisition ID:</strong> <span th:text="${purchaseOrder.requisition.id}"></span></p>
+    <p><strong>Status:</strong> <span th:text="${purchaseOrder.status}"></span></p>
+    <p><strong>Created At:</strong> <span th:text="${#temporals.format(purchaseOrder.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+    <div th:if="${purchaseOrder.reasonForRejection}">
+        <p><strong>Reason for Rejection:</strong> <span th:text="${purchaseOrder.reasonForRejection}"></span></p>
+    </div>
+    <div th:if="${purchaseOrder.approver}">
+        <p><strong>Approver:</strong> <span th:text="${purchaseOrder.approver.username}"></span></p>
+    </div>
+    <div th:if="${purchaseOrder.supplier}">
+        <p><strong>Supplier:</strong> <span th:text="${purchaseOrder.supplier.name}"></span></p>
+    </div>
+</div>
+<div th:unless="${purchaseOrder}">
+    <p>Purchase Order not found.</p>
+</div>
+<a href="/purchase-orders">Back to list</a>
+</body>
+</html>

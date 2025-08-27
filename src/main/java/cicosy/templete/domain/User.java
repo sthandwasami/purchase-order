@@ -34,6 +34,10 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.USER;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -46,6 +50,8 @@ public class User {
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public Department getDepartment() { return department; }
+    public void setDepartment(Department department) { this.department = department; }
 
     public enum Role { USER, ADMIN, HOD, BUYER, APPROVER }
 }

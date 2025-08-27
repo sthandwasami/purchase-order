@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Requisition</title>
+</head>
+<body>
+<h1>Requisition Details</h1>
+<div th:if="${requisition}">
+    <p><strong>ID:</strong> <span th:text="${requisition.id}"></span></p>
+    <p><strong>Item:</strong> <span th:text="${requisition.item}"></span></p>
+    <p><strong>Quantity:</strong> <span th:text="${requisition.quantity}"></span></p>
+    <p><strong>Priority:</strong> <span th:text="${requisition.priority}"></span></p>
+    <p><strong>Status:</strong> <span th:text="${requisition.status}"></span></p>
+    <p><strong>Submitted By:</strong> <span th:text="${requisition.user.username}"></span></p>
+    <p><strong>Department:</strong> <span th:text="${requisition.department.name}"></span></p>
+    <p><strong>Created At:</strong> <span th:text="${#temporals.format(requisition.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+    <div th:if="${requisition.reasonForRejection}">
+        <p><strong>Reason for Rejection:</strong> <span th:text="${requisition.reasonForRejection}"></span></p>
+    </div>
+</div>
+<div th:unless="${requisition}">
+    <p>Requisition not found.</p>
+</div>
+<a href="/requisitions">Back to list</a>
+</body>
+</html>

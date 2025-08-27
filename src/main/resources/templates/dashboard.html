@@ -2,105 +2,38 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Template App - Dashboard</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard</title>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand" href="/dashboard">Template App</a>
-    <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    Welcome, <span sec:authentication="name">User</span>!
-                </span>
-      <form th:action="@{/logout}" method="post" class="d-inline">
-        <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-      </form>
-    </div>
-  </div>
-</nav>
+<h1>Dashboard</h1>
+<p>Welcome, <span sec:authentication="name"></span>!</p>
+<p>Role: <span sec:authentication="principal.authorities"></span></p>
 
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-12">
-      <div class="jumbotron bg-light rounded p-5">
-        <h1 class="display-4">Dashboard</h1>
-        <p class="lead">Welcome to your personalized dashboard. You have successfully logged in!</p>
-        <hr class="my-4">
-        <p>This is your secure landing page. You can now access all the features of the application.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">User Profile</h5>
-        </div>
-        <div class="card-body">
-          <p><strong>Username:</strong> <span sec:authentication="name">User</span></p>
-          <p><strong>Role:</strong> <span sec:authentication="principal.authorities">ROLE_USER</span></p>
-          <p><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button type="button" class="btn btn-primary">View Profile</button>
-            <button type="button" class="btn btn-outline-primary">Settings</button>
-            <button type="button" class="btn btn-outline-secondary">Help</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">System Information</h5>
-        </div>
-        <div class="card-body">
-          <p><small class="text-muted">Application Version: 1.0.0</small></p>
-          <p><small class="text-muted">Java Version: 17</small></p>
-          <p><small class="text-muted">Spring Boot Version: 3.2.0</small></p>
-          <p><small class="text-muted">Database: MySQL</small></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">Recent Activity</h5>
-        </div>
-        <div class="card-body">
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Successfully logged in</span>
-              <small class="text-muted">Just now</small>
-            </div>
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Account created</span>
-              <small class="text-muted">Today</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div th:if="${user.role.name() == 'HOD'}">
+    <h2>My Department's Requisitions</h2>
+    <a href="/requisitions/new">Create Walk-in Requisition</a>
+    <div th:replace="~{requisitions/list :: ~{body}}"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<div th:if="${user.role.name() == 'APPROVER'}">
+    <h2>Purchase Orders for Approval</h2>
+    <div th:replace="~{purchase-orders/list :: ~{body}}"></div>
+</div>
+
+<div th:if="${user.role.name() == 'BUYER'}">
+    <h2>Approved Purchase Orders</h2>
+    <div th:replace="~{purchase-orders/list :: ~{body}}"></div>
+</div>
+
+<div th:if="${user.role.name() == 'USER'}">
+    <h2>My Requisitions</h2>
+    <a href="/requisitions/new">New Requisition</a>
+    <div th:replace="~{requisitions/list :: ~{body}}"></div>
+</div>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
+
 </body>
 </html>

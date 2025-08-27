@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Purchase Orders</title>
+</head>
+<body>
+<h1>Purchase Orders</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Requisition ID</th>
+        <th>Status</th>
+        <th>Created At</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="po : ${purchaseOrders}">
+        <td th:text="${po.id}"></td>
+        <td th:text="${po.requisition.id}"></td>
+        <td th:text="${po.status}"></td>
+        <td th:text="${#temporals.format(po.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        <td>
+            <a th:href="@{/purchase-orders/{id}(id=${po.id})}">View</a>
+            <div sec:authorize="hasRole('APPROVER')" th:if="${po.status.name() == 'PENDING_APPROVAL'}">
+                <form th:action="@{/purchase-orders/{id}/approve(id=${po.id})}" method="post" style="display:inline;">
+                    <button type="submit">Approve</button>
+                </form>
+                <form th:action="@{/purchase-orders/{id}/reject(id=${po.id})}" method="post" style="display:inline;">
+                    <input type="text" name="reason" placeholder="Reason for rejection" required/>
+                    <button type="submit">Reject</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
