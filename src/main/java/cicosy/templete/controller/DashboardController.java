@@ -30,7 +30,8 @@ public class DashboardController {
 
         switch (user.getRole()) {
             case HOD:
-                model.addAttribute("requisitions", requisitionService.findRequisitionsForHod(user));
+                model.addAttribute("departmentRequisitions", requisitionService.findRequisitionsForHod(user));
+                model.addAttribute("myRequisitions", requisitionService.findRequisitionsForUser(user));
                 break;
             case APPROVER:
             case BUYER:

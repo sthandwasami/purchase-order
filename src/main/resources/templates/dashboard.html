@@ -11,8 +11,15 @@
 
 <div th:if="${user.role.name() == 'HOD'}">
     <h2>My Department's Requisitions</h2>
-    <a href="/requisitions/new">Create Walk-in Requisition</a>
-    <div th:replace="~{requisitions/list :: ~{body}}"></div>
+    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${departmentRequisitions})}"></div>
+
+    <form th:action="@{/requisitions/consolidate}" method="post">
+        <button type="submit">Consolidate Requisitions</button>
+    </form>
+
+    <h2>My Requisitions</h2>
+    <a href="/requisitions/new-walk-in">Create Walk-in Requisition</a>
+    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${myRequisitions})}"></div>
 </div>
 
 <div th:if="${user.role.name() == 'APPROVER'}">

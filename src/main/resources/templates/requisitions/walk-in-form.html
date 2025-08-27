@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>New Walk-in Requisition</title>
+</head>
+<body>
+<h1>New Walk-in Requisition</h1>
+<form th:action="@{/requisitions/walk-in}" th:object="${requisition}" method="post">
+    <div>
+        <label for="item">Item:</label>
+        <input type="text" id="item" th:field="*{item}" required/>
+    </div>
+    <div>
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" th:field="*{quantity}" required/>
+    </div>
+    <div>
+        <label for="priority">Priority:</label>
+        <select id="priority" th:field="*{priority}" required>
+            <option th:each="p : ${T(cicosy.templete.domain.Requisition.Priority).values()}"
+                    th:value="${p}" th:text="${p.name()}"></option>
+        </select>
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
+</body>
+</html>

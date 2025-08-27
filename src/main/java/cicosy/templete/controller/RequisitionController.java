@@ -54,6 +54,25 @@ public class RequisitionController {
         return "redirect:/requisitions";
     }
 
+    @GetMapping("/new-walk-in")
+    @PreAuthorize("hasRole('HOD')")
+    public String showWalkInRequisitionForm(Model model) {
+        model.addAttribute("requisition", new Requisition());
+        return "requisitions/walk-in-form";
+    }
+
+    @PostMapping("/walk-in")
+    @PreAuthorize("hasRole('HOD')")
+    public String createWalkInRequisition(@ModelAttribute Requisition requisition, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        requisition.setUser(user);
+        requisition.setDepartment(user.getDepartment());
+        requisition.setStatus(Requisition.Status.PENDING);
+        requisition.setWalkIn(true); // Set the walk-in flag
+        requisitionService.createRequisition(requisition);
+        return "redirect:/requisitions";
+    }
+
     @GetMapping("/{id}")
     public String viewRequisition(@PathVariable Long id, Model model) {
         model.addAttribute("requisition", requisitionService.findById(id).orElse(null));
@@ -72,5 +91,12 @@ public class RequisitionController {
     public String rejectRequisition(@PathVariable Long id, @RequestParam String reason) {
         requisitionService.rejectRequisition(id, reason);
         return "redirect:/requisitions";
+    }
+
+    @PostMapping("/consolidate")
+    @PreAuthorize("hasRole('HOD')")
+    public String consolidate() {
+        requisitionService.consolidateRequisitions();
+        return "redirect:/dashboard";
     }
 }
