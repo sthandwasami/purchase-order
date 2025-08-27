@@ -36,7 +36,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/home", "/signup", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/home", "/signup", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/requisitions/**", "/purchase-orders/**").authenticated()
                 .anyRequest().authenticated()
@@ -56,6 +56,10 @@ public class SecurityConfig {
                 .permitAll()
             )
             .userDetailsService(userDetailsService);
+
+        // For H2 console
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         return http.build();
     }
