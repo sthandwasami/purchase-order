@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Requisition Request</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="container">
+    <h1>Requisition Request Details</h1>
+    <div th:if="${request}">
+        <p><strong>ID:</strong> <span th:text="${request.id}"></span></p>
+        <p><strong>Item:</strong> <span th:text="${request.item}"></span></p>
+        <p><strong>Quantity:</strong> <span th:text="${request.quantity}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${request.priority}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${request.status}"></span></p>
+        <p><strong>Submitted By:</strong> <span th:text="${request.user.username}"></span></p>
+        <p><strong>Department:</strong> <span th:text="${request.department.name}"></span></p>
+        <p><strong>Created At:</strong> <span th:text="${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <div th:if="${request.reasonForRejection}">
+            <p><strong>Reason for Rejection:</strong> <span th:text="${request.reasonForRejection}"></span></p>
+        </div>
+
+        <div th:if="${canApprove}" style="margin-top: 20px;">
+            <h2>HOD Action</h2>
+            <form th:action="@{/requests/{id}/approve(id=${request.id})}" method="post" style="display: inline-block; margin-right: 10px;">
+                <button type="submit" class="action-button">Approve</button>
+            </form>
+            <form th:action="@{/requests/{id}/reject(id=${request.id})}" method="post" style="display: inline-block;">
+                <input type="text" name="reason" placeholder="Reason for rejection" required style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;"/>
+                <button type="submit" class="action-button" style="background-color: #dc3545;">Reject</button>
+            </form>
+        </div>
+
+    </div>
+    <div th:unless="${request}">
+        <p>Requisition Request not found.</p>
+    </div>
+    <a href="/requests" style="margin-top: 20px; display: inline-block;">Back to list</a>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
