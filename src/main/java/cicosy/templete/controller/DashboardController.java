@@ -99,8 +99,8 @@ public class DashboardController {
         // Feedback from Purchase Order approvals/rejections
         var departmentRequisitions = requisitionService.findRequisitionsForDepartment(hod.getDepartment());
         var recentFeedback = departmentRequisitions.stream()
-                .filter(r -> r.getStatus() == Requisition.Status.APPROVED_BY_BUDGET || 
-                           r.getStatus() == Requisition.Status.REJECTED_BY_BUDGET)
+                .filter(r -> r.getStatus() == Requisition.Status.PO_APPROVED ||
+                           r.getStatus() == Requisition.Status.PO_REJECTED)
                 .limit(5)
                 .collect(java.util.stream.Collectors.toList());
         model.addAttribute("recentFeedback", recentFeedback);

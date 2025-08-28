@@ -28,6 +28,10 @@ public interface RequisitionService {
     // Status-based queries
     List<Requisition> findByStatus(Requisition.Status status);
     List<Requisition> findRejectedRequisitions();
+    List<Requisition> findRequisitionsForHod(User user);
+    Requisition approveRequisition(Long id);
+    Requisition rejectRequisition(Long id, String reason);
+    void consolidateRequisitions();
     
     // Procurement operations
     Requisition sendToProcurement(Long requisitionId);

@@ -165,37 +165,32 @@ public class RequisitionRequestServiceImpl implements RequisitionRequestService 
 
     private void consolidateRequestsIntoRequisition(List<RequisitionRequest> requests) {
         if (requests.isEmpty()) return;
-        
+
         RequisitionRequest firstRequest = requests.get(0);
-        
+
         // Create consolidated requisition
         Requisition requisition = new Requisition();
-        requisition.setConsolidatedItem(firstRequest.getItem());
-        requisition.setTotalQuantity(requests.stream().mapToInt(RequisitionRequest::getQuantity).sum());
         
-        // Consolidate descriptions
-        String consolidatedDesc = requests.stream()
-                .map(r -> "User: " + r.getUser().getUsername() + " - " + r.getDescription())
-                .collect(Collectors.joining(" | "));
-        requisition.setConsolidatedDescription(consolidatedDesc);
+        List<cicosy.templete.domain.RequisitionItem> items = requests.stream().map(request -> {
+            cicosy.templete.domain.RequisitionItem item = new cicosy.templete.domain.RequisitionItem();
+            item.setName(request.getItem());
+            item.setQuantity(request.getQuantity());
+            item.setSpecifications(request.getDescription());
+            item.setRequisition(requisition);
+            return item;
+        }).collect(Collectors.toList());
         
+        requisition.setItems(items);
+
         // Set highest priority
         Requisition.Priority highestPriority = requests.stream()
                 .map(r -> Requisition.Priority.valueOf(r.getPriority().name()))
                 .min((p1, p2) -> p1.ordinal() - p2.ordinal()) // HIGH=0, MEDIUM=1, LOW=2
                 .orElse(Requisition.Priority.MEDIUM);
         requisition.setPriority(highestPriority);
-        
-        // Calculate total estimated cost
-        BigDecimal totalCost = requests.stream()
-                .filter(r -> r.getEstimatedCost() != null)
-                .map(RequisitionRequest::getEstimatedCost)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        requisition.setTotalEstimatedCost(totalCost);
-        
+
         requisition.setDepartment(firstRequest.getDepartment());
-        requisition.setHodApprover(firstRequest.getReviewedByHod());
-        requisition.setHodApprovedAt(LocalDateTime.now());
+        requisition.setUser(firstRequest.getUser());
         requisition.setStatus(Requisition.Status.AWAITING_PO_APPROVAL);
         
         // Save requisition
@@ -213,15 +208,16 @@ public class RequisitionRequestServiceImpl implements RequisitionRequestService 
 
     private void convertSingleRequestToRequisition(RequisitionRequest request) {
         Requisition requisition = new Requisition();
-        requisition.setConsolidatedItem(request.getItem());
-        requisition.setTotalQuantity(request.getQuantity());
-        requisition.setConsolidatedDescription(request.getDescription());
+        cicosy.templete.domain.RequisitionItem item = new cicosy.templete.domain.RequisitionItem();
+        item.setName(request.getItem());
+        item.setQuantity(request.getQuantity());
+        item.setSpecifications(request.getDescription());
+        item.setRequisition(requisition);
+
+        requisition.setItems(java.util.Collections.singletonList(item));
         requisition.setPriority(Requisition.Priority.valueOf(request.getPriority().name()));
-        requisition.setTotalEstimatedCost(request.getEstimatedCost() != null ? 
-                request.getEstimatedCost() : BigDecimal.ZERO);
         requisition.setDepartment(request.getDepartment());
-        requisition.setHodApprover(request.getReviewedByHod());
-        requisition.setHodApprovedAt(LocalDateTime.now());
+        requisition.setUser(request.getUser());
         requisition.setStatus(Requisition.Status.AWAITING_PO_APPROVAL);
         
         // Save requisition
