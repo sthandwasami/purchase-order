@@ -42,7 +42,7 @@ public class RequisitionRequestController {
         }
         
         model.addAttribute("requests", requests);
-        return "requests/list";
+        return "requisitions/list";
     }
 
     @GetMapping("/new")
