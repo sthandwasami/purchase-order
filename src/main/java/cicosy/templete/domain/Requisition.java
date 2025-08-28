@@ -11,11 +11,8 @@ public class Requisition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String item;
-
-    @Column(nullable = false)
-    private int quantity;
+    @OneToMany(mappedBy = "requisition", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<RequisitionItem> items;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -46,10 +43,8 @@ public class Requisition {
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getItem() { return item; }
-    public void setItem(String item) { this.item = item; }
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public java.util.List<RequisitionItem> getItems() { return items; }
+    public void setItems(java.util.List<RequisitionItem> items) { this.items = items; }
     public Priority getPriority() { return priority; }
     public void setPriority(Priority priority) { this.priority = priority; }
     public Status getStatus() { return status; }

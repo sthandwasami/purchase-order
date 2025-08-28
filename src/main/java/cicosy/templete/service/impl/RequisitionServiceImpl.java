@@ -50,31 +50,32 @@ public class RequisitionServiceImpl implements RequisitionService {
 
     @Override
     public void consolidateRequisitions() {
-        List<Requisition> pendingRequisitions = requisitionRepository.findByStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
-        Map<String, List<Requisition>> requisitionsByItem = pendingRequisitions.stream()
-                .collect(Collectors.groupingBy(Requisition::getItem));
-
-        for (Map.Entry<String, List<Requisition>> entry : requisitionsByItem.entrySet()) {
-            if (entry.getValue().size() > 2) {
-                List<Requisition> toConsolidate = entry.getValue();
-                int totalQuantity = toConsolidate.stream().mapToInt(Requisition::getQuantity).sum();
-
-                Requisition consolidated = new Requisition();
-                consolidated.setItem(entry.getKey());
-                consolidated.setQuantity(totalQuantity);
-                consolidated.setPriority(Requisition.Priority.MEDIUM); // Or some other logic for priority
-                consolidated.setStatus(Requisition.Status.PENDING_PO_APPROVAL);
-                consolidated.setDepartment(toConsolidate.get(0).getDepartment()); // Assuming same department
-                consolidated.setUser(toConsolidate.get(0).getUser()); // Assuming same user for now
-
-                requisitionRepository.save(consolidated);
-
-                for (Requisition req : toConsolidate) {
-                    req.setStatus(Requisition.Status.CONSOLIDATED);
-                    requisitionRepository.save(req);
-                }
-            }
-        }
+        // TODO: Implement consolidation logic for RequisitionItems
+        // List<Requisition> pendingRequisitions = requisitionRepository.findByStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
+        // Map<String, List<Requisition>> requisitionsByItem = pendingRequisitions.stream()
+        //         .collect(Collectors.groupingBy(Requisition::getItem));
+        //
+        // for (Map.Entry<String, List<Requisition>> entry : requisitionsByItem.entrySet()) {
+        //     if (entry.getValue().size() > 2) {
+        //         List<Requisition> toConsolidate = entry.getValue();
+        //         int totalQuantity = toConsolidate.stream().mapToInt(Requisition::getQuantity).sum();
+        //
+        //         Requisition consolidated = new Requisition();
+        //         consolidated.setItem(entry.getKey());
+        //         consolidated.setQuantity(totalQuantity);
+        //         consolidated.setPriority(Requisition.Priority.MEDIUM); // Or some other logic for priority
+        //         consolidated.setStatus(Requisition.Status.PENDING_PO_APPROVAL);
+        //         consolidated.setDepartment(toConsolidate.get(0).getDepartment()); // Assuming same department
+        //         consolidated.setUser(toConsolidate.get(0).getUser()); // Assuming same user for now
+        //
+        //         requisitionRepository.save(consolidated);
+        //
+        //         for (Requisition req : toConsolidate) {
+        //             req.setStatus(Requisition.Status.CONSOLIDATED);
+        //             requisitionRepository.save(req);
+        //         }
+        //     }
+        // }
     }
 
     @Override
