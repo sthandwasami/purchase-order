@@ -2,69 +2,349 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>New Requisition</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .item-row {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .item-header {
+            background-color: #006400;
+            color: white;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #006400;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn-primary {
+            background-color: #006400;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-primary:hover {
+            background-color: #004d00;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .form-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-<h1>New Requisition</h1>
-<form th:action="@{/requisitions}" th:object="${requisition}" method="post">
-    <table>
-        <thead>
-        <tr>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th>Category</th>
-            <th>Specifications</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item, itemStat : *{items}">
-            <td><input type="text" th:field="*{items[__${itemStat.index}__].name}" required/></td>
-            <td><input type="number" th:field="*{items[__${itemStat.index}__].quantity}" required/></td>
-            <td><input type="text" th:field="*{items[__${itemStat.index}__].category}"/></td>
-            <td><input type="text" th:field="*{items[__${itemStat.index}__].specifications}"/></td>
-            <td><button type="button" onclick="removeItem(this)">Remove</button></td>
-        </tr>
-        </tbody>
-    </table>
-    <button type="button" onclick="addItem()">Add Item</button>
-    <div>
-        <label for="priority">Priority:</label>
-        <select id="priority" th:field="*{priority}" required>
-            <option th:each="p : ${T(cicosy.templete.domain.Requisition.Priority).values()}"
-                    th:value="${p}" th:text="${p.name()}"></option>
-        </select>
-    </div>
-    <div>
-        <label for="department">Department:</label>
-        <select id="department" th:field="*{department}" required>
-            <option th:each="dept : ${departments}"
-                    th:value="${dept.id}" th:text="${dept.name}"></option>
-        </select>
-    </div>
-    <div>
-        <button type="submit">Submit</button>
-    </div>
-</form>
+
+<div class="container">
+    <h1>New Requisition</h1>
+
+    <form th:action="@{/requisitions}" th:object="${requisition}" method="post" id="requisitionForm">
+
+        <!-- Requisition Details -->
+        <div class="form-group">
+            <label for="priority">Priority:</label>
+            <select id="priority" th:field="*{priority}" required>
+                <option value="">-- Select Priority --</option>
+                <option th:each="p : ${T(cicosy.templete.domain.Requisition.Priority).values()}"
+                        th:value="${p}" th:text="${p.name()}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="department">Department:</label>
+            <select id="department" th:field="*{department}" required>
+                <option value="">-- Select Department --</option>
+                <option th:each="dept : ${departments}"
+                        th:value="${dept.id}" th:text="${dept.name}"></option>
+            </select>
+        </div>
+
+        <!-- Items Section -->
+        <h3>Requisition Items</h3>
+        <div id="itemsContainer">
+            <div th:each="item, itemStat : *{items}" class="item-row" th:data-index="${itemStat.index}">
+                <div class="item-header">
+                    <span th:text="'Item ' + (${itemStat.index} + 1)">Item 1</span>
+                    <button type="button" class="btn-danger remove-item-btn" onclick="removeItem(this)"
+                            th:style="${itemStat.index == 0} ? 'display: none;' : ''">Remove</button>
+                </div>
+
+                <div class="item-fields">
+                    <div class="form-group">
+                        <label th:for="'items' + ${itemStat.index} + '.name'">Item Name <span style="color: red;">*</span></label>
+                        <input type="text" th:field="*{items[__${itemStat.index}__].name}"
+                               th:id="'items' + ${itemStat.index} + '.name'" required
+                               placeholder="Enter item name" />
+                    </div>
+
+                    <div class="form-group">
+                        <label th:for="'items' + ${itemStat.index} + '.quantity'">Quantity <span style="color: red;">*</span></label>
+                        <input type="number" th:field="*{items[__${itemStat.index}__].quantity}"
+                               th:id="'items' + ${itemStat.index} + '.quantity'" required min="1"
+                               placeholder="Enter quantity" />
+                    </div>
+
+                    <div class="form-group">
+                        <label th:for="'items' + ${itemStat.index} + '.category'">Category</label>
+                        <select th:field="*{items[__${itemStat.index}__].category}"
+                                th:id="'items' + ${itemStat.index} + '.category'">
+                            <option value="">-- Select Category --</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Office Supplies">Office Supplies</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Stationery">Stationery</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Software">Software</option>
+                            <option value="Services">Services</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label th:for="'items' + ${itemStat.index} + '.specifications'">Specifications</label>
+                        <textarea th:field="*{items[__${itemStat.index}__].specifications}"
+                                  th:id="'items' + ${itemStat.index} + '.specifications'" rows="3"
+                                  placeholder="Enter detailed specifications, model numbers, brands, or any special requirements"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button type="button" class="btn-primary" onclick="addItem()">+ Add Another Item</button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Submit Requisition</button>
+            <a th:href="@{/dashboard}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
+
 <script>
+    let itemIndex = 1; // Start from 1 since we have one item by default
+
     function addItem() {
-        var tableBody = document.querySelector("tbody");
-        var newRow = tableBody.insertRow();
-        var newIndex = tableBody.rows.length - 1;
-        newRow.innerHTML = `
-            <td><input type="text" name="items[${newIndex}].name" required/></td>
-            <td><input type="number" name="items[${newIndex}].quantity" required/></td>
-            <td><input type="text" name="items[${newIndex}].category"/></td>
-            <td><input type="text" name="items[${newIndex}].specifications"/></td>
-            <td><button type="button" onclick="removeItem(this)">Remove</button></td>
-        `;
+        const container = document.getElementById('itemsContainer');
+        const newItemDiv = document.createElement('div');
+        newItemDiv.className = 'item-row';
+        newItemDiv.setAttribute('data-index', itemIndex);
+
+        newItemDiv.innerHTML = `
+        <div class="item-header">
+            <span>Item ${itemIndex + 1}</span>
+            <button type="button" class="btn-danger remove-item-btn" onclick="removeItem(this)">Remove</button>
+        </div>
+
+        <div class="item-fields">
+            <div class="form-group">
+                <label for="items${itemIndex}.name">Item Name <span style="color: red;">*</span></label>
+                <input type="text" name="items[${itemIndex}].name" id="items${itemIndex}.name" required
+                       placeholder="Enter item name" />
+            </div>
+
+            <div class="form-group">
+                <label for="items${itemIndex}.quantity">Quantity <span style="color: red;">*</span></label>
+                <input type="number" name="items[${itemIndex}].quantity" id="items${itemIndex}.quantity"
+                       required min="1" placeholder="Enter quantity" />
+            </div>
+
+            <div class="form-group">
+                <label for="items${itemIndex}.category">Category</label>
+                <select name="items[${itemIndex}].category" id="items${itemIndex}.category">
+                    <option value="">-- Select Category --</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Office Supplies">Office Supplies</option>
+                    <option value="Furniture">Furniture</option>
+                    <option value="Stationery">Stationery</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Software">Software</option>
+                    <option value="Services">Services</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="items${itemIndex}.specifications">Specifications</label>
+                <textarea name="items[${itemIndex}].specifications" id="items${itemIndex}.specifications"
+                          rows="3" placeholder="Enter detailed specifications, model numbers, brands, or any special requirements"></textarea>
+            </div>
+        </div>
+    `;
+
+        container.appendChild(newItemDiv);
+        itemIndex++;
+        updateItemNumbers();
     }
 
     function removeItem(button) {
-        var row = button.parentNode.parentNode;
-        row.parentNode.removeChild(row);
+        const itemRow = button.closest('.item-row');
+        const container = document.getElementById('itemsContainer');
+
+        // Don't remove if it's the only item
+        if (container.children.length <= 1) {
+            alert('At least one item is required for a requisition.');
+            return;
+        }
+
+        itemRow.remove();
+        updateItemNumbers();
+        reindexItems();
     }
+
+    function updateItemNumbers() {
+        const itemRows = document.querySelectorAll('.item-row');
+        itemRows.forEach((row, index) => {
+            const header = row.querySelector('.item-header span');
+            header.textContent = `Item ${index + 1}`;
+
+            // Show/hide remove button for first item
+            const removeBtn = row.querySelector('.remove-item-btn');
+            if (index === 0 && itemRows.length === 1) {
+                removeBtn.style.display = 'none';
+            } else {
+                removeBtn.style.display = 'inline-block';
+            }
+        });
+    }
+
+    function reindexItems() {
+        const itemRows = document.querySelectorAll('.item-row');
+        itemRows.forEach((row, index) => {
+            // Update all input names and ids to have correct indices
+            const inputs = row.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                const id = input.getAttribute('id');
+
+                if (name && name.includes('items[')) {
+                    const newName = name.replace(/items\[\d+\]/, `items[${index}]`);
+                    input.setAttribute('name', newName);
+                }
+
+                if (id && id.includes('items')) {
+                    const newId = id.replace(/items\d+/, `items${index}`);
+                    input.setAttribute('id', newId);
+                }
+
+                // Update corresponding label
+                const label = row.querySelector(`label[for="${id}"]`);
+                if (label) {
+                    label.setAttribute('for', input.getAttribute('id'));
+                }
+            });
+
+            row.setAttribute('data-index', index);
+        });
+
+        // Update global itemIndex
+        itemIndex = itemRows.length;
+    }
+
+    // Form validation
+    document.getElementById('requisitionForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const errorMessages = [];
+
+        // Check if at least one item exists
+        const itemRows = document.querySelectorAll('.item-row');
+        if (itemRows.length === 0) {
+            errorMessages.push('At least one item is required.');
+            isValid = false;
+        }
+
+        // Validate each item
+        itemRows.forEach((row, index) => {
+            const itemName = row.querySelector('input[name*=".name"]');
+            const itemQuantity = row.querySelector('input[name*=".quantity"]');
+
+            if (!itemName.value.trim()) {
+                errorMessages.push(`Item ${index + 1}: Name is required.`);
+                isValid = false;
+            }
+
+            if (!itemQuantity.value || itemQuantity.value < 1) {
+                errorMessages.push(`Item ${index + 1}: Quantity must be at least 1.`);
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please correct the following errors:\n\n' + errorMessages.join('\n'));
+            return false;
+        }
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateItemNumbers();
+    });
 </script>
+
 </body>
 </html>

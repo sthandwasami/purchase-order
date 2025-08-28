@@ -1,6 +1,8 @@
 package cicosy.templete.domain;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,8 +13,11 @@ public class Requisition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "requisition", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<RequisitionItem> items;
+    @Column(nullable = false)
+    private String item;
+
+    @Column(nullable = false)
+    private int quantity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -37,14 +42,38 @@ public class Requisition {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    public RequisitionItem[] getItems() {
+
+    }
+
+    public void setConsolidatedItem(String item) {
+    }
+
+    public void setTotalQuantity(int sum) {
+    }
+
+    public void setConsolidatedDescription(String consolidatedDesc) {
+    }
+
+    public void setTotalEstimatedCost(BigDecimal totalCost) {
+    }
+
+    public void setHodApprover(User reviewedByHod) {
+    }
+
+    public void setHodApprovedAt(LocalDateTime now) {
+    }
+
     public enum Priority { HIGH, MEDIUM, LOW }
-    public enum Status { PENDING_ADMIN_APPROVAL, APPROVED_BY_ADMIN, REJECTED_BY_ADMIN, CONSOLIDATED, PENDING_PO_APPROVAL, PO_APPROVED, PO_REJECTED }
+    public enum Status { PENDING_ADMIN_APPROVAL, APPROVED_BY_ADMIN, REJECTED_BY_ADMIN, CONSOLIDATED, PENDING_PO_APPROVAL, PO_APPROVED, AWAITING_PO_APPROVAL, PO_REJECTED }
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public java.util.List<RequisitionItem> getItems() { return items; }
-    public void setItems(java.util.List<RequisitionItem> items) { this.items = items; }
+    public String getItem() { return item; }
+    public void setItem(String item) { this.item = item; }
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
     public Priority getPriority() { return priority; }
     public void setPriority(Priority priority) { this.priority = priority; }
     public Status getStatus() { return status; }

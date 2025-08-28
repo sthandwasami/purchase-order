@@ -34,9 +34,17 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.USER;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LoginType loginType = LoginType.INDIVIDUAL;
+
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
+    // New field to track approval limits for approvers
+    @Column(precision = 15, scale = 2)
+    private java.math.BigDecimal approvalLimit;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -50,10 +58,13 @@ public class User {
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public LoginType getLoginType() { return loginType; }
+    public void setLoginType(LoginType loginType) { this.loginType = loginType; }
     public Department getDepartment() { return department; }
     public void setDepartment(Department department) { this.department = department; }
+    public java.math.BigDecimal getApprovalLimit() { return approvalLimit; }
+    public void setApprovalLimit(java.math.BigDecimal approvalLimit) { this.approvalLimit = approvalLimit; }
 
     public enum Role { USER, ADMIN, HOD, BUYER, APPROVER }
+    public enum LoginType { INDIVIDUAL, DEPARTMENT }
 }
-
-

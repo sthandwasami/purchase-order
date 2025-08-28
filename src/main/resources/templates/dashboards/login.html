@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - E-Procurement System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .login-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .login-type-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .login-type-option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-type-option:hover {
+            border-color: #006400;
+            background: #f0fff0;
+        }
+
+        .login-type-option.selected {
+            border-color: #006400;
+            background: #e8f5e8;
+        }
+
+        .login-type-option input[type="radio"] {
+            margin-right: 10px;
+            scale: 1.2;
+        }
+
+        .login-type-description {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: #006400;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-button:hover {
+            background: #004d00;
+        }
+
+        .login-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="login-container">
+    <h2 style="text-align: center; margin-bottom: 30px; color: #006400;">
+        Login to E-Procurement System
+    </h2>
+
+    <!-- Success Message -->
+    <div th:if="${success}" class="alert alert-success">
+        <span th:text="${success}"></span>
+    </div>
+
+    <!-- Logout Message -->
+    <div th:if="${message}" class="alert alert-info">
+        <span th:text="${message}"></span>
+    </div>
+
+    <!-- Error Message -->
+    <div th:if="${error}" class="alert alert-danger">
+        <span th:text="${error}"></span>
+    </div>
+
+    <form id="loginForm" th:action="@{/login}" method="post">
+        <!-- Login Type Selection -->
+        <div class="login-type-selector">
+            <h4 style="margin-bottom: 15px;">Select Login Type:</h4>
+
+            <div class="login-type-option" onclick="selectLoginType('INDIVIDUAL')">
+                <input type="radio" name="loginType" value="INDIVIDUAL" id="individual" checked>
+                <div>
+                    <label for="individual" style="cursor: pointer; margin: 0;">
+                        <strong>Individual User</strong>
+                    </label>
+                    <div class="login-type-description">
+                        Login as a personal user to create and manage your own requests
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-type-option" onclick="selectLoginType('DEPARTMENT')">
+                <input type="radio" name="loginType" value="DEPARTMENT" id="department">
+                <div>
+                    <label for="department" style="cursor: pointer; margin: 0;">
+                        <strong>Department Representative</strong>
+                    </label>
+                    <div class="login-type-description">
+                        Login as HOD to review and approve department requests
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required
+                   placeholder="Enter your username">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required
+                   placeholder="Enter your password">
+        </div>
+
+        <button type="submit" class="login-button">Login</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <p>Don't have an account? <a href="/signup" style="color: #006400;">Sign up here</a></p>
+        <a href="/" style="color: #666;">← Back to Home</a>
+    </div>
+
+    <!-- Demo Credentials -->
+    <div style="background: #f8f9fa; padding: 15px; margin-top: 20px; border-radius: 6px; font-size: 0.9em;">
+        <h5 style="margin-bottom: 10px; color: #006400;">Demo Credentials:</h5>
+        <p><strong>Regular User:</strong> user1 / Password1!</p>
+        <p><strong>HOD:</strong> hod1 / Password1!</p>
+        <p><strong>Approver:</strong> approver1 / Password1!</p>
+        <p><strong>Buyer:</strong> buyer1 / Password1!</p>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function selectLoginType(type) {
+        // Update radio button
+        document.getElementById('individual').checked = (type === 'INDIVIDUAL');
+        document.getElementById('department').checked = (type === 'DEPARTMENT');
+
+        // Update visual selection
+        document.querySelectorAll('.login-type-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+
+        if (type === 'INDIVIDUAL') {
+            document.querySelector('.login-type-option:first-child').classList.add('selected');
+        } else {
+            document.querySelector('.login-type-option:last-child').classList.add('selected');
+        }
+    }
+
+    // Initialize selection
+    document.addEventListener('DOMContentLoaded', function() {
+        selectLoginType('INDIVIDUAL');
+
+        // Add click handlers for the radio buttons themselves
+        document.getElementById('individual').addEventListener('change', function() {
+            if (this.checked) selectLoginType('INDIVIDUAL');
+        });
+
+        document.getElementById('department').addEventListener('change', function() {
+            if (this.checked) selectLoginType('DEPARTMENT');
+        });
+    });
+</script>
+</body>
+</html>
