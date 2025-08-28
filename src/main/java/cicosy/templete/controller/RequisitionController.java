@@ -43,7 +43,9 @@ public class RequisitionController {
     @GetMapping("/new")
     @PreAuthorize("hasAnyRole('USER', 'HOD')")
     public String showRequisitionForm(Model model) {
-        model.addAttribute("requisition", new Requisition());
+        Requisition requisition = new Requisition();
+        requisition.setItems(new java.util.ArrayList<>(java.util.Collections.singletonList(new cicosy.templete.domain.RequisitionItem())));
+        model.addAttribute("requisition", requisition);
         model.addAttribute("departments", departmentRepository.findAll());
         return "requisitions/form";
     }
@@ -54,6 +56,11 @@ public class RequisitionController {
         User user = userService.findByUsername(principal.getName());
         requisition.setUser(user);
         requisition.setStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
+        if (requisition.getItems() != null) {
+            for (cicosy.templete.domain.RequisitionItem item : requisition.getItems()) {
+                item.setRequisition(requisition);
+            }
+        }
         requisitionService.createRequisition(requisition);
         return "redirect:/requisitions";
     }
@@ -61,7 +68,9 @@ public class RequisitionController {
     @GetMapping("/new-walk-in")
     @PreAuthorize("hasRole('HOD')")
     public String showWalkInRequisitionForm(Model model) {
-        model.addAttribute("requisition", new Requisition());
+        Requisition requisition = new Requisition();
+        requisition.setItems(new java.util.ArrayList<>(java.util.Collections.singletonList(new cicosy.templete.domain.RequisitionItem())));
+        model.addAttribute("requisition", requisition);
         model.addAttribute("departments", departmentRepository.findAll());
         return "requisitions/walk-in-form";
     }
@@ -73,6 +82,11 @@ public class RequisitionController {
         requisition.setUser(user);
         requisition.setStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
         requisition.setWalkIn(true); // Set the walk-in flag
+        if (requisition.getItems() != null) {
+            for (cicosy.templete.domain.RequisitionItem item : requisition.getItems()) {
+                item.setRequisition(requisition);
+            }
+        }
         requisitionService.createRequisition(requisition);
         return "redirect:/requisitions";
     }

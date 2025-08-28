@@ -7,14 +7,27 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <h1>New Walk-in Requisition</h1>
 <form th:action="@{/requisitions/walk-in}" th:object="${requisition}" method="post">
-    <div>
-        <label for="item">Item:</label>
-        <input type="text" id="item" th:field="*{item}" required/>
-    </div>
-    <div>
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" th:field="*{quantity}" required/>
-    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Specifications</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item, itemStat : *{items}">
+            <td><input type="text" th:field="*{items[__${itemStat.index}__].name}" required/></td>
+            <td><input type="number" th:field="*{items[__${itemStat.index}__].quantity}" required/></td>
+            <td><input type="text" th:field="*{items[__${itemStat.index}__].category}"/></td>
+            <td><input type="text" th:field="*{items[__${itemStat.index}__].specifications}"/></td>
+            <td><button type="button" onclick="removeItem(this)">Remove</button></td>
+        </tr>
+        </tbody>
+    </table>
+    <button type="button" onclick="addItem()">Add Item</button>
     <div>
         <label for="priority">Priority:</label>
         <select id="priority" th:field="*{priority}" required>
@@ -34,5 +47,24 @@
     </div>
 </form>
 <div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+    function addItem() {
+        var tableBody = document.querySelector("tbody");
+        var newRow = tableBody.insertRow();
+        var newIndex = tableBody.rows.length - 1;
+        newRow.innerHTML = `
+            <td><input type="text" name="items[${newIndex}].name" required/></td>
+            <td><input type="number" name="items[${newIndex}].quantity" required/></td>
+            <td><input type="text" name="items[${newIndex}].category"/></td>
+            <td><input type="text" name="items[${newIndex}].specifications"/></td>
+            <td><button type="button" onclick="removeItem(this)">Remove</button></td>
+        `;
+    }
+
+    function removeItem(button) {
+        var row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
+</script>
 </body>
 </html>

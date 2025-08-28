@@ -27,8 +27,8 @@
     <tbody>
     <tr th:each="requisition : ${requisitions}">
         <td th:text="${requisition.id}"></td>
-        <td th:text="${requisition.item}"></td>
-        <td th:text="${requisition.quantity}"></td>
+        <td th:text="${#strings.arrayJoin(#lists.sort(requisition.items.![name]), ', ')}"></td>
+        <td th:text="${#aggregates.sum(requisition.items.![quantity])}"></td>
         <td th:text="${requisition.priority}"></td>
         <td>
             <span th:switch="${requisition.status.name()}">

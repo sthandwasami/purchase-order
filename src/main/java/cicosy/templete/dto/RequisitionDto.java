@@ -4,11 +4,14 @@ import cicosy.templete.domain.Requisition;
 
 import java.time.LocalDateTime;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class RequisitionDto {
 
     private Long id;
-    private String item;
-    private int quantity;
+    private List<String> items;
+    private int totalQuantity;
     private Requisition.Priority priority;
     private Requisition.Status status;
     private String reasonForRejection;
@@ -18,8 +21,8 @@ public class RequisitionDto {
 
     public RequisitionDto(Requisition requisition) {
         this.id = requisition.getId();
-        this.item = requisition.getItem();
-        this.quantity = requisition.getQuantity();
+        this.items = requisition.getItems().stream().map(item -> item.getName() + " (x" + item.getQuantity() + ")").collect(Collectors.toList());
+        this.totalQuantity = requisition.getItems().stream().mapToInt(item -> item.getQuantity()).sum();
         this.priority = requisition.getPriority();
         this.status = requisition.getStatus();
         this.reasonForRejection = requisition.getReasonForRejection();
@@ -31,10 +34,10 @@ public class RequisitionDto {
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getItem() { return item; }
-    public void setItem(String item) { this.item = item; }
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public List<String> getItems() { return items; }
+    public void setItems(List<String> items) { this.items = items; }
+    public int getTotalQuantity() { return totalQuantity; }
+    public void setTotalQuantity(int totalQuantity) { this.totalQuantity = totalQuantity; }
     public Requisition.Priority getPriority() { return priority; }
     public void setPriority(Requisition.Priority priority) { this.priority = priority; }
     public Requisition.Status getStatus() { return status; }
