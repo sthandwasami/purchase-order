@@ -5,14 +5,30 @@
     <title>Dashboard</title>
 </head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
+
 <h1>Dashboard</h1>
 <p>Welcome, <span sec:authentication="name"></span>!</p>
 <p>Role: <span sec:authentication="principal.authorities"></span></p>
 
+<div th:if="${user.role.name() == 'ADMIN'}">
+    <h2>Pending Requisitions for Approval</h2>
+    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${pendingRequisitions})}"></div>
+    <a href="/requisitions/approved">View Approved Requisitions</a>
+    <a href="/requisitions/rejected">View Rejected Requisitions</a>
+</div>
+
 <div th:if="${user.role.name() == 'HOD'}">
     <h2>My Department's Requisitions</h2>
-    <a href="/requisitions/new">Create Walk-in Requisition</a>
-    <div th:replace="~{requisitions/list :: ~{body}}"></div>
+    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${departmentRequisitions})}"></div>
+
+    <form th:action="@{/requisitions/consolidate}" method="post">
+        <button type="submit">Consolidate Requisitions</button>
+    </form>
+
+    <h2>My Requisitions</h2>
+    <a href="/requisitions/new-walk-in">Create Walk-in Requisition</a>
+    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${myRequisitions})}"></div>
 </div>
 
 <div th:if="${user.role.name() == 'APPROVER'}">
@@ -31,9 +47,6 @@
     <div th:replace="~{requisitions/list :: ~{body}}"></div>
 </div>
 
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Logout</button>
-</form>
-
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

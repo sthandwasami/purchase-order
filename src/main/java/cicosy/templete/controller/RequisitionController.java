@@ -2,6 +2,7 @@ package cicosy.templete.controller;
 
 import cicosy.templete.domain.Requisition;
 import cicosy.templete.domain.User;
+import cicosy.templete.repository.DepartmentRepository;
 import cicosy.templete.service.RequisitionService;
 import cicosy.templete.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class RequisitionController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
     @GetMapping
     public String listRequisitions(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
@@ -40,6 +44,7 @@ public class RequisitionController {
     @PreAuthorize("hasAnyRole('USER', 'HOD')")
     public String showRequisitionForm(Model model) {
         model.addAttribute("requisition", new Requisition());
+        model.addAttribute("departments", departmentRepository.findAll());
         return "requisitions/form";
     }
 
@@ -48,8 +53,26 @@ public class RequisitionController {
     public String createRequisition(@ModelAttribute Requisition requisition, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         requisition.setUser(user);
-        requisition.setDepartment(user.getDepartment());
-        requisition.setStatus(Requisition.Status.PENDING);
+        requisition.setStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
+        requisitionService.createRequisition(requisition);
+        return "redirect:/requisitions";
+    }
+
+    @GetMapping("/new-walk-in")
+    @PreAuthorize("hasRole('HOD')")
+    public String showWalkInRequisitionForm(Model model) {
+        model.addAttribute("requisition", new Requisition());
+        model.addAttribute("departments", departmentRepository.findAll());
+        return "requisitions/walk-in-form";
+    }
+
+    @PostMapping("/walk-in")
+    @PreAuthorize("hasRole('HOD')")
+    public String createWalkInRequisition(@ModelAttribute Requisition requisition, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        requisition.setUser(user);
+        requisition.setStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
+        requisition.setWalkIn(true); // Set the walk-in flag
         requisitionService.createRequisition(requisition);
         return "redirect:/requisitions";
     }
@@ -61,16 +84,41 @@ public class RequisitionController {
     }
 
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasRole('HOD')")
+    @PreAuthorize("hasRole('ADMIN')")
     public String approveRequisition(@PathVariable Long id) {
         requisitionService.approveRequisition(id);
         return "redirect:/requisitions";
     }
 
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasRole('HOD')")
+    @PreAuthorize("hasRole('ADMIN')")
     public String rejectRequisition(@PathVariable Long id, @RequestParam String reason) {
         requisitionService.rejectRequisition(id, reason);
         return "redirect:/requisitions";
+    }
+
+    @PostMapping("/consolidate")
+    @PreAuthorize("hasRole('HOD')")
+    public String consolidate() {
+        requisitionService.consolidateRequisitions();
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/approved")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String listApprovedRequisitions(Model model) {
+        model.addAttribute("requisitions", requisitionService.findAll().stream()
+                .filter(r -> r.getStatus() == Requisition.Status.APPROVED_BY_ADMIN)
+                .collect(java.util.stream.Collectors.toList()));
+        return "requisitions/list";
+    }
+
+    @GetMapping("/rejected")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String listRejectedRequisitions(Model model) {
+        model.addAttribute("requisitions", requisitionService.findAll().stream()
+                .filter(r -> r.getStatus() == Requisition.Status.REJECTED_BY_ADMIN)
+                .collect(java.util.stream.Collectors.toList()));
+        return "requisitions/list";
     }
 }

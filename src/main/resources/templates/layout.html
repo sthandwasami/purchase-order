@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Requisition System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Requisition and Purchase Order Management System</h1>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <span sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+    <main>
+        <div th:fragment="content">
+            <!-- Content will be inserted here -->
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Requisition System</p>
+    </footer>
+</div>
+</body>
+</html>

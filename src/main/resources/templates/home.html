@@ -1,44 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Purchase Order - Home</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; }
-        a { text-decoration: none; color: #0b5ed7; }
-    </style>
-    </head>
-<body>
-<h1>Purchase Order System</h1>
-<p>Welcome. This is the single-entry Spring Boot app scaffold.</p>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Template App - Home</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/">Template App</a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="/login">Login</a>
-            <a class="nav-link" href="/signup">Sign Up</a>
-        </div>
-    </div>
-</nav>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
-            <h1 class="display-4">Welcome to Template App</h1>
-            <p class="lead">A simple Spring Boot application with authentication</p>
+            <h1 class="display-4">Welcome to the Requisition System</h1>
+            <p class="lead">A simple Spring Boot application for managing requisitions and purchase orders.</p>
 
             <div class="mt-4">
                 <a href="/login" class="btn btn-primary btn-lg me-3">Login</a>
@@ -60,7 +35,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Database Integration</h5>
-                    <p class="card-text">Connected to MySQL database for persistent data storage.</p>
+                    <p class="card-text">Connected to an in-memory H2 database for persistent data storage.</p>
                 </div>
             </div>
         </div>
@@ -75,6 +50,6 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

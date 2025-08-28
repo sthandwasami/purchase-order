@@ -4,6 +4,7 @@
     <title>View Requisition</title>
 </head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
 <h1>Requisition Details</h1>
 <div th:if="${requisition}">
     <p><strong>ID:</strong> <span th:text="${requisition.id}"></span></p>
@@ -22,5 +23,6 @@
     <p>Requisition not found.</p>
 </div>
 <a href="/requisitions">Back to list</a>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>New Requisition</title>
+    <title>New Walk-in Requisition</title>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-<h1>New Requisition</h1>
-<form th:action="@{/requisitions}" th:object="${requisition}" method="post">
+<h1>New Walk-in Requisition</h1>
+<form th:action="@{/requisitions/walk-in}" th:object="${requisition}" method="post">
     <div>
         <label for="item">Item:</label>
         <input type="text" id="item" th:field="*{item}" required/>
