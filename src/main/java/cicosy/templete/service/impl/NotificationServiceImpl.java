@@ -292,4 +292,24 @@ public class NotificationServiceImpl implements NotificationService {
             .map(item -> String.format("%s (qty: %d)", item.getName(), item.getQuantity()))
             .collect(Collectors.joining(", "));
     }
+
+    @Override
+    public void notifyHodOfNewRequest(cicosy.templete.domain.RequisitionRequest savedRequest) {
+        logger.info("Notifying HOD of new request: {}", savedRequest.getId());
+    }
+
+    @Override
+    public void notifyUserOfRequestApproval(cicosy.templete.domain.RequisitionRequest savedRequest) {
+        logger.info("Notifying user of request approval: {}", savedRequest.getId());
+    }
+
+    @Override
+    public void notifyUserOfRequestRejection(cicosy.templete.domain.RequisitionRequest savedRequest) {
+        logger.info("Notifying user of request rejection: {}", savedRequest.getId());
+    }
+
+    @Override
+    public void notifyApproverOfNewRequisition(Requisition savedRequisition) {
+        logger.info("Notifying approver of new requisition: {}", savedRequisition.getId());
+    }
 }

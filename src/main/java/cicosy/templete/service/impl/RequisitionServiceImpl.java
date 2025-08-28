@@ -35,72 +35,84 @@ public class RequisitionServiceImpl implements RequisitionService {
     @Override
     public Requisition createRequisition(Requisition requisition) {
         logger.info("Creating new requisition for user: {}", requisition.getUser().getUsername());
-        
-        // Set creation timestamp
         requisition.setCreatedAt(LocalDateTime.now());
-        
-        // Ensure items are properly linked
         if (requisition.getItems() != null) {
             for (RequisitionItem item : requisition.getItems()) {
                 item.setRequisition(requisition);
             }
         }
-        
         Requisition savedRequisition = requisitionRepository.save(requisition);
-        
-        // Send notifications
         notificationService.notifyAdminOfNewRequisition(savedRequisition);
-        
-        // If it's a department requisition, notify the HOD
         if (savedRequisition.getDepartment() != null && savedRequisition.getDepartment().getHod() != null) {
             notificationService.notifyHodOfDepartmentRequisition(savedRequisition);
         }
-        
         logger.info("Requisition {} created successfully", savedRequisition.getId());
         return savedRequisition;
     }
 
     @Override
-    public Requisition approveRequisition(Long requisitionId) {
-        logger.info("Approving requisition: {}", requisitionId);
-        
-        Requisition requisition = requisitionRepository.findById(requisitionId)
-                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
-        
-        if (requisition.getStatus() != Requisition.Status.PENDING_ADMIN_APPROVAL) {
-            throw new RuntimeException("Requisition is not in a state that can be approved. Current status: " + requisition.getStatus());
-        }
-        
-        requisition.setStatus(Requisition.Status.APPROVED_BY_ADMIN);
-        Requisition savedRequisition = requisitionRepository.save(requisition);
-        
-        // Send notifications
-        notificationService.notifyUserOfRequisitionApproval(savedRequisition);
-        
-        logger.info("Requisition {} approved successfully", savedRequisition.getId());
-        return savedRequisition;
+    public List<Requisition> findRequisitionsForUser(User user) {
+        return requisitionRepository.findByUser(user);
     }
 
     @Override
-    public Requisition rejectRequisition(Long requisitionId, String reason) {
-        logger.info("Rejecting requisition: {} with reason: {}", requisitionId, reason);
-        
+    public List<Requisition> findRequisitionsForDepartment(Department department) {
+        return requisitionRepository.findByDepartment(department);
+    }
+
+    @Override
+    public List<Requisition> findByStatus(Requisition.Status status) {
+        return requisitionRepository.findByStatus(status);
+    }
+
+    @Override
+    public List<Requisition> findRejectedRequisitions() {
+        return requisitionRepository.findByStatus(Requisition.Status.REJECTED_BY_ADMIN);
+    }
+
+    @Override
+    public Requisition sendToProcurement(Long requisitionId) {
         Requisition requisition = requisitionRepository.findById(requisitionId)
                 .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
-        
-        if (requisition.getStatus() != Requisition.Status.PENDING_ADMIN_APPROVAL) {
-            throw new RuntimeException("Requisition is not in a state that can be rejected. Current status: " + requisition.getStatus());
+        requisition.setStatus(Requisition.Status.PENDING_PO_APPROVAL);
+        return requisitionRepository.save(requisition);
+    }
+
+    @Override
+    public Requisition markAsCompleted(Long requisitionId, BigDecimal actualCost) {
+        Requisition requisition = requisitionRepository.findById(requisitionId)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
+        requisition.setStatus(Requisition.Status.PO_APPROVED);
+        return requisitionRepository.save(requisition);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Requisition> findRequisitionsForHod(User hod) {
+        if (hod.getDepartment() == null) {
+            logger.warn("HOD {} does not have a department assigned", hod.getUsername());
+            return List.of();
         }
-        
+        return requisitionRepository.findByDepartment(hod.getDepartment());
+    }
+
+    @Override
+    public Requisition approveRequisition(Long id) {
+        Requisition requisition = requisitionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + id));
+        requisition.setStatus(Requisition.Status.APPROVED_BY_ADMIN);
+        notificationService.notifyUserOfRequisitionApproval(requisition);
+        return requisitionRepository.save(requisition);
+    }
+
+    @Override
+    public Requisition rejectRequisition(Long id, String reason) {
+        Requisition requisition = requisitionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + id));
         requisition.setStatus(Requisition.Status.REJECTED_BY_ADMIN);
         requisition.setReasonForRejection(reason);
-        Requisition savedRequisition = requisitionRepository.save(requisition);
-        
-        // Send notifications
-        notificationService.notifyUserOfRequisitionRejection(savedRequisition);
-        
-        logger.info("Requisition {} rejected successfully", savedRequisition.getId());
-        return savedRequisition;
+        notificationService.notifyUserOfRequisitionRejection(requisition);
+        return requisitionRepository.save(requisition);
     }
 
     @Override
@@ -145,69 +157,35 @@ public class RequisitionServiceImpl implements RequisitionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Requisition> findRequisitionsForUser(User user) {
-        return requisitionRepository.findByUser(user);
-    }
-
-    @Override
-    public List<Requisition> findRequisitionsForDepartment(Department department) {
-        return List.of();
-    }
-
-    @Override
-    public List<Requisition> findByStatus(Requisition.Status status) {
-        return List.of();
-    }
-
-    @Override
-    public List<Requisition> findRejectedRequisitions() {
-        return List.of();
-    }
-
-    @Override
-    public Requisition sendToProcurement(Long requisitionId) {
-        return null;
-    }
-
-    @Override
-    public Requisition markAsCompleted(Long requisitionId, BigDecimal actualCost) {
-        return null;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Requisition> findRequisitionsForHod(User hod) {
-        if (hod.getDepartment() == null) {
-            logger.warn("HOD {} does not have a department assigned", hod.getUsername());
-            return List.of();
-        }
-        return requisitionRepository.findByDepartment(hod.getDepartment());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<Requisition> findAll() {
         return requisitionRepository.findAll();
     }
 
     @Override
     public Requisition approveRequisitionByBudget(Long requisitionId, User approver) {
-        return null;
+        Requisition requisition = requisitionRepository.findById(requisitionId)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
+        requisition.setStatus(Requisition.Status.PO_APPROVED);
+        return requisitionRepository.save(requisition);
     }
 
     @Override
     public Requisition rejectRequisitionByBudget(Long requisitionId, String reason, User approver) {
-        return null;
+        Requisition requisition = requisitionRepository.findById(requisitionId)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
+        requisition.setStatus(Requisition.Status.PO_REJECTED);
+        requisition.setReasonForRejection(reason);
+        return requisitionRepository.save(requisition);
     }
 
     @Override
     public List<Requisition> findRequisitionsAwaitingBudgetApproval() {
-        return List.of();
+        return requisitionRepository.findByStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
     }
 
     @Override
     public List<Requisition> findApprovedRequisitions() {
-        return List.of();
+        return requisitionRepository.findByStatus(Requisition.Status.APPROVED_BY_ADMIN);
     }
 
     @Override
@@ -218,7 +196,7 @@ public class RequisitionServiceImpl implements RequisitionService {
 
     @Override
     public Requisition save(Requisition requisition) {
-        return null;
+        return requisitionRepository.save(requisition);
     }
 
     // Helper methods
