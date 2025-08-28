@@ -4,6 +4,7 @@
     <title>View Purchase Order</title>
 </head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
 <h1>Purchase Order Details</h1>
 <div th:if="${purchaseOrder}">
     <p><strong>ID:</strong> <span th:text="${purchaseOrder.id}"></span></p>
@@ -24,5 +25,6 @@
     <p>Purchase Order not found.</p>
 </div>
 <a href="/purchase-orders">Back to list</a>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

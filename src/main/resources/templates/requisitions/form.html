@@ -4,6 +4,7 @@
     <title>New Requisition</title>
 </head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
 <h1>New Requisition</h1>
 <form th:action="@{/requisitions}" th:object="${requisition}" method="post">
     <div>
@@ -22,8 +23,16 @@
         </select>
     </div>
     <div>
+        <label for="department">Department:</label>
+        <select id="department" th:field="*{department}" required>
+            <option th:each="dept : ${departments}"
+                    th:value="${dept.id}" th:text="${dept.name}"></option>
+        </select>
+    </div>
+    <div>
         <button type="submit">Submit</button>
     </div>
 </form>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

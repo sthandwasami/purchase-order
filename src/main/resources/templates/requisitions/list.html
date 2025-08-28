@@ -5,6 +5,7 @@
     <title>Requisitions</title>
 </head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
 <h1>Requisitions</h1>
 <div sec:authorize="hasAnyRole('USER', 'HOD')">
     <a href="/requisitions/new">New Requisition</a>
@@ -29,13 +30,19 @@
         <td th:text="${requisition.item}"></td>
         <td th:text="${requisition.quantity}"></td>
         <td th:text="${requisition.priority}"></td>
-        <td th:text="${requisition.status}"></td>
+        <td>
+            <span th:switch="${requisition.status.name()}">
+                <span th:case="'APPROVED_BY_ADMIN'" style="color: green;" th:text="${requisition.status} + ' ✓'"></span>
+                <span th:case="'REJECTED_BY_ADMIN'" style="color: red;" th:text="${requisition.status} + ' X'"></span>
+                <span th:case="*" th:text="${requisition.status}"></span>
+            </span>
+        </td>
         <td th:text="${requisition.user.username}"></td>
         <td th:text="${requisition.department.name}"></td>
         <td th:text="${#temporals.format(requisition.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
         <td>
             <a th:href="@{/requisitions/{id}(id=${requisition.id})}">View</a>
-            <div sec:authorize="hasRole('HOD')" th:if="${requisition.status.name() == 'PENDING'}">
+            <div sec:authorize="hasRole('ADMIN')" th:if="${requisition.status.name() == 'PENDING_ADMIN_APPROVAL'}">
                 <form th:action="@{/requisitions/{id}/approve(id=${requisition.id})}" method="post" style="display:inline;">
                     <button type="submit">Approve</button>
                 </form>
@@ -48,5 +55,6 @@
     </tr>
     </tbody>
 </table>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

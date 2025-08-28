@@ -1,5 +1,6 @@
 package cicosy.templete.controller;
 
+import cicosy.templete.domain.Requisition;
 import cicosy.templete.domain.User;
 import cicosy.templete.service.PurchaseOrderService;
 import cicosy.templete.service.RequisitionService;
@@ -29,6 +30,11 @@ public class DashboardController {
         model.addAttribute("user", user);
 
         switch (user.getRole()) {
+            case ADMIN:
+                model.addAttribute("pendingRequisitions", requisitionService.findAll().stream()
+                        .filter(r -> r.getStatus() == Requisition.Status.PENDING_ADMIN_APPROVAL)
+                        .collect(java.util.stream.Collectors.toList()));
+                break;
             case HOD:
                 model.addAttribute("departmentRequisitions", requisitionService.findRequisitionsForHod(user));
                 model.addAttribute("myRequisitions", requisitionService.findRequisitionsForUser(user));

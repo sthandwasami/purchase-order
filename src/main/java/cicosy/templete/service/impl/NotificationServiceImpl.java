@@ -13,6 +13,13 @@ public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
     @Override
+    public void notifyUserOfApproval(Requisition requisition) {
+        logger.info("Notifying user {} that requisition {} has been approved.",
+                requisition.getUser().getUsername(),
+                requisition.getId());
+    }
+
+    @Override
     public void notifyUserOfRejection(Requisition requisition) {
         logger.info("Notifying user {} that requisition {} has been rejected. Reason: {}",
                 requisition.getUser().getUsername(),
@@ -26,5 +33,12 @@ public class NotificationServiceImpl implements NotificationService {
                 purchaseOrder.getRequisition().getDepartment().getHod().getUsername(),
                 purchaseOrder.getId(),
                 purchaseOrder.getReasonForRejection());
+    }
+
+    @Override
+    public void notifyAdminOfNewRequisition(Requisition requisition) {
+        logger.info("Notifying admin that a new requisition {} has been created by user {}.",
+                requisition.getId(),
+                requisition.getUser().getUsername());
     }
 }

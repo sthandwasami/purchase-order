@@ -3,6 +3,7 @@ package cicosy.templete.service.impl;
 import cicosy.templete.domain.Requisition;
 import cicosy.templete.domain.User;
 import cicosy.templete.repository.RequisitionRepository;
+import cicosy.templete.service.NotificationService;
 import cicosy.templete.service.RequisitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,27 +19,38 @@ public class RequisitionServiceImpl implements RequisitionService {
     @Autowired
     private RequisitionRepository requisitionRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public Requisition createRequisition(Requisition requisition) {
-        // Logic to be implemented
-        return requisitionRepository.save(requisition);
+        Requisition savedRequisition = requisitionRepository.save(requisition);
+        notificationService.notifyAdminOfNewRequisition(savedRequisition);
+        return savedRequisition;
     }
 
     @Override
     public Requisition approveRequisition(Long requisitionId) {
-        // Logic to be implemented
-        return null;
+        Requisition requisition = requisitionRepository.findById(requisitionId).orElseThrow(() -> new RuntimeException("Requisition not found"));
+        requisition.setStatus(Requisition.Status.APPROVED_BY_ADMIN);
+        Requisition savedRequisition = requisitionRepository.save(requisition);
+        notificationService.notifyUserOfApproval(savedRequisition);
+        return savedRequisition;
     }
 
     @Override
     public Requisition rejectRequisition(Long requisitionId, String reason) {
-        // Logic to be implemented
-        return null;
+        Requisition requisition = requisitionRepository.findById(requisitionId).orElseThrow(() -> new RuntimeException("Requisition not found"));
+        requisition.setStatus(Requisition.Status.REJECTED_BY_ADMIN);
+        requisition.setReasonForRejection(reason);
+        Requisition savedRequisition = requisitionRepository.save(requisition);
+        notificationService.notifyUserOfRejection(savedRequisition);
+        return savedRequisition;
     }
 
     @Override
     public void consolidateRequisitions() {
-        List<Requisition> pendingRequisitions = requisitionRepository.findByStatus(Requisition.Status.PENDING);
+        List<Requisition> pendingRequisitions = requisitionRepository.findByStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
         Map<String, List<Requisition>> requisitionsByItem = pendingRequisitions.stream()
                 .collect(Collectors.groupingBy(Requisition::getItem));
 

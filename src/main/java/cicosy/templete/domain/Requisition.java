@@ -41,7 +41,7 @@ public class Requisition {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Priority { HIGH, MEDIUM, LOW }
-    public enum Status { PENDING, APPROVED_BY_HOD, REJECTED_BY_HOD, CONSOLIDATED, PENDING_PO_APPROVAL, PO_APPROVED, PO_REJECTED }
+    public enum Status { PENDING_ADMIN_APPROVAL, APPROVED_BY_ADMIN, REJECTED_BY_ADMIN, CONSOLIDATED, PENDING_PO_APPROVAL, PO_APPROVED, PO_REJECTED }
 
     // Getters and Setters
     public Long getId() { return id; }
