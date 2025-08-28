@@ -141,7 +141,7 @@ public class RequisitionRequestController {
             user.getRole() == User.Role.HOD && 
             request.getStatus() == RequisitionRequest.Status.PENDING_HOD_REVIEW);
         
-        return "requests/view";
+        return "requisitions/view-request";
     }
 
     @PostMapping("/{id}/approve")
