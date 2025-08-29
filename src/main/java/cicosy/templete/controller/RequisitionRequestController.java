@@ -59,7 +59,7 @@ public class RequisitionRequestController {
         model.addAttribute("request", request);
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("priorities", RequisitionRequest.Priority.values());
-        return "requests/form";
+        return "requisitions/request-form";
     }
 
     @PostMapping
