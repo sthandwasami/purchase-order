@@ -1,52 +1,223 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Purchase Requisitions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #059669;
+            --dark-green: #047857;
+            --light-green: #d1fae5;
+            --accent-green: #10b981;
+            --darker-green: #065f46;
+        }
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+        .role-badge {
+            background: linear-gradient(135deg, var(--accent-green), var(--primary-green));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        .quick-action {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .quick-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            color: inherit;
+            text-decoration: none;
+        }
+        .action-icon {
+            font-size: 2.5rem;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+        }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, var(--dark-green), var(--primary-green));
+            transform: translateY(-2px);
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="welcome-card">
+                        <div class="role-badge">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <span sec:authentication="principal.authorities"></span>
+                        </div>
+                        <h1 class="mb-3">Purchase Requisition System</h1>
+                        <p class="lead mb-4">
+                            Welcome, <strong><span sec:authentication="name"></span></strong>! 
+                            Manage your procurement requests efficiently.
+                        </p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="/requests/new" class="btn btn-primary-custom" th:if="${user.role.name() == 'USER' or user.role.name() == 'HOD'}">
+                                <i class="fas fa-plus me-2"></i>New Request
+                            </a>
+                            <a href="/logout" class="btn btn-outline-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h1>Dashboard</h1>
-<p>Welcome, <span sec:authentication="name"></span>!</p>
-<p>Role: <span sec:authentication="principal.authorities"></span></p>
+    <div class="container">
+        <!-- Quick Actions Based on Role -->
+        <div class="row g-4">
+            <!-- User Actions -->
+            <div th:if="${user.role.name() == 'USER'}" class="col-md-6 col-lg-4">
+                <a href="/requests" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-list action-icon"></i>
+                        <h5>My Requests</h5>
+                        <p class="text-muted mb-0">View and track your submitted requests</p>
+                    </div>
+                </a>
+            </div>
 
-<div th:if="${user.role.name() == 'ADMIN'}">
-    <h2>Pending Requisitions for Approval</h2>
-    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${pendingRequisitions})}"></div>
-    <a href="/requisitions/approved">View Approved Requisitions</a>
-    <a href="/requisitions/rejected">View Rejected Requisitions</a>
-</div>
+            <!-- HOD Actions -->
+            <div th:if="${user.role.name() == 'HOD'}" class="col-md-6 col-lg-4">
+                <a href="/requests" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-clipboard-check action-icon"></i>
+                        <h5>Review Requests</h5>
+                        <p class="text-muted mb-0">Review and approve department requests</p>
+                    </div>
+                </a>
+            </div>
 
-<div th:if="${user.role.name() == 'HOD'}">
-    <h2>My Department's Requisitions</h2>
-    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${departmentRequisitions})}"></div>
+            <div th:if="${user.role.name() == 'HOD'}" class="col-md-6 col-lg-4">
+                <a href="/requests" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-user-tie action-icon"></i>
+                        <h5>My Requests</h5>
+                        <p class="text-muted mb-0">View your personal requests</p>
+                    </div>
+                </a>
+            </div>
 
-    <form th:action="@{/requisitions/consolidate}" method="post">
-        <button type="submit">Consolidate Requisitions</button>
-    </form>
+            <!-- Approver Actions -->
+            <div th:if="${user.role.name() == 'APPROVER'}" class="col-md-6 col-lg-4">
+                <a href="/requisitions/pending" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-calculator action-icon"></i>
+                        <h5>Budget Reviews</h5>
+                        <p class="text-muted mb-0">Review requisitions for budget approval</p>
+                    </div>
+                </a>
+            </div>
 
-    <h2>My Requisitions</h2>
-    <a href="/requisitions/new-walk-in">Create Walk-in Requisition</a>
-    <div th:replace="~{requisitions/list :: #requisitionTable(requisitions=${myRequisitions})}"></div>
-</div>
+            <!-- Buyer Actions -->
+            <div th:if="${user.role.name() == 'BUYER'}" class="col-md-6 col-lg-4">
+                <a href="/purchase-orders" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-shopping-cart action-icon"></i>
+                        <h5>Purchase Orders</h5>
+                        <p class="text-muted mb-0">Manage procurement and purchase orders</p>
+                    </div>
+                </a>
+            </div>
 
-<div th:if="${user.role.name() == 'APPROVER'}">
-    <h2>Purchase Orders for Approval</h2>
-    <div th:replace="~{purchase-orders/list :: ~{body}}"></div>
-</div>
+            <!-- Common Actions -->
+            <div class="col-md-6 col-lg-4">
+                <a href="/reports" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-chart-bar action-icon"></i>
+                        <h5>Reports</h5>
+                        <p class="text-muted mb-0">View system reports and analytics</p>
+                    </div>
+                </a>
+            </div>
 
-<div th:if="${user.role.name() == 'BUYER'}">
-    <h2>Approved Purchase Orders</h2>
-    <div th:replace="~{purchase-orders/list :: ~{body}}"></div>
-</div>
+            <div class="col-md-6 col-lg-4">
+                <a href="/profile" class="quick-action d-block">
+                    <div class="text-center">
+                        <i class="fas fa-user-cog action-icon"></i>
+                        <h5>Profile</h5>
+                        <p class="text-muted mb-0">Manage your account settings</p>
+                    </div>
+                </a>
+            </div>
+        </div>
 
-<div th:if="${user.role.name() == 'USER'}">
-    <h2>My Requisitions</h2>
-    <a href="/requisitions/new">New Requisition</a>
-    <div th:replace="~{requisitions/list :: ~{body}}"></div>
-</div>
+        <!-- System Status -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Purchase Requisition System • Secure & Efficient • Version 2.0
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add entrance animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const actions = document.querySelectorAll('.quick-action');
+            actions.forEach((action, index) => {
+                action.style.opacity = '0';
+                action.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    action.style.transition = 'all 0.6s ease';
+                    action.style.opacity = '1';
+                    action.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        });
+    </script>
 </body>
 </html>

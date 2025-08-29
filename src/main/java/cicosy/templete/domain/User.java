@@ -37,6 +37,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LoginType loginType = LoginType.INDIVIDUAL;
+    
+    // Current session login type (not persisted)
+    @Transient
+    private LoginType currentSessionLoginType;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -64,6 +68,8 @@ public class User {
     public void setDepartment(Department department) { this.department = department; }
     public java.math.BigDecimal getApprovalLimit() { return approvalLimit; }
     public void setApprovalLimit(java.math.BigDecimal approvalLimit) { this.approvalLimit = approvalLimit; }
+    public LoginType getCurrentSessionLoginType() { return currentSessionLoginType; }
+    public void setCurrentSessionLoginType(LoginType currentSessionLoginType) { this.currentSessionLoginType = currentSessionLoginType; }
 
     public enum Role { USER, ADMIN, HOD, BUYER, APPROVER }
     public enum LoginType { INDIVIDUAL, DEPARTMENT }

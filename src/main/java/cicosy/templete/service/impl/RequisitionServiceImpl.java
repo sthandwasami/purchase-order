@@ -180,7 +180,7 @@ public class RequisitionServiceImpl implements RequisitionService {
 
     @Override
     public List<Requisition> findRequisitionsAwaitingBudgetApproval() {
-        return requisitionRepository.findByStatus(Requisition.Status.PENDING_ADMIN_APPROVAL);
+        return requisitionRepository.findByStatus(Requisition.Status.AWAITING_PO_APPROVAL);
     }
 
     @Override
@@ -197,6 +197,70 @@ public class RequisitionServiceImpl implements RequisitionService {
     @Override
     public Requisition save(Requisition requisition) {
         return requisitionRepository.save(requisition);
+    }
+    
+    @Override
+    public Requisition approveBudget(Long requisitionId, User approver, String comments) {
+        Requisition requisition = requisitionRepository.findById(requisitionId)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
+        
+        if (requisition.getStatus() != Requisition.Status.AWAITING_PO_APPROVAL) {
+            throw new RuntimeException("Requisition is not awaiting budget approval");
+        }
+        
+        requisition.setStatus(Requisition.Status.PO_APPROVED);
+        Requisition savedRequisition = requisitionRepository.save(requisition);
+        
+        // Notify HOD and user of budget approval
+        notifyBudgetDecision(savedRequisition, true, null, comments);
+        
+        logger.info("Budget approved for requisition {} by approver {}", requisitionId, approver.getUsername());
+        return savedRequisition;
+    }
+    
+    @Override
+    public Requisition rejectBudget(Long requisitionId, String reason, User approver, String comments) {
+        Requisition requisition = requisitionRepository.findById(requisitionId)
+                .orElseThrow(() -> new RuntimeException("Requisition not found with id: " + requisitionId));
+        
+        if (requisition.getStatus() != Requisition.Status.AWAITING_PO_APPROVAL) {
+            throw new RuntimeException("Requisition is not awaiting budget approval");
+        }
+        
+        requisition.setStatus(Requisition.Status.PO_REJECTED);
+        requisition.setReasonForRejection(reason);
+        Requisition savedRequisition = requisitionRepository.save(requisition);
+        
+        // Notify HOD and user of budget rejection
+        notifyBudgetDecision(savedRequisition, false, reason, comments);
+        
+        logger.info("Budget rejected for requisition {} by approver {}. Reason: {}", 
+            requisitionId, approver.getUsername(), reason);
+        return savedRequisition;
+    }
+    
+    private void notifyBudgetDecision(Requisition requisition, boolean approved, String reason, String comments) {
+        // Notify the original requester
+        String message = String.format(
+            "Budget %s for your requisition #%d. %s %s",
+            approved ? "approved" : "rejected",
+            requisition.getId(),
+            reason != null ? "Reason: " + reason : "",
+            comments != null ? "Comments: " + comments : ""
+        );
+        
+        // In a real implementation, you would send notifications here
+        logger.info("Notifying user {} about budget decision for requisition {}", 
+            requisition.getUser().getUsername(), requisition.getId());
+        
+        // Notify HOD if different from requester
+        if (requisition.getDepartment() != null && 
+            requisition.getDepartment().getHod() != null &&
+            !requisition.getDepartment().getHod().equals(requisition.getUser())) {
+            
+            logger.info("Notifying HOD {} about budget decision for requisition {}", 
+                requisition.getDepartment().getHod().getUsername(), requisition.getId());
+        }
     }
 
     // Helper methods

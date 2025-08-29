@@ -15,7 +15,9 @@ public interface RequisitionRequestService {
     // HOD operations
     List<RequisitionRequest> findPendingRequestsForHod(User hod);
     RequisitionRequest approveRequest(Long requestId, User hod);
+    RequisitionRequest approveRequest(Long requestId, User hod, String comments);
     RequisitionRequest rejectRequest(Long requestId, String reason, User hod);
+    RequisitionRequest rejectRequest(Long requestId, String reason, User hod, String comments);
     List<RequisitionRequest> findDepartmentRequests(User hod);
     long countPendingRequestsForDepartment(User hod);
     List<RequisitionRequest> findRecentDepartmentActivity(User hod);

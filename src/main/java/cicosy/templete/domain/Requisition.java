@@ -41,7 +41,17 @@ public class Requisition {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Priority { HIGH, MEDIUM, LOW }
-    public enum Status { PENDING_ADMIN_APPROVAL, APPROVED_BY_ADMIN, REJECTED_BY_ADMIN, CONSOLIDATED, PENDING_PO_APPROVAL, PO_APPROVED, AWAITING_PO_APPROVAL, PO_REJECTED }
+    public enum Status { 
+        PENDING_ADMIN_APPROVAL, 
+        APPROVED_BY_ADMIN, 
+        REJECTED_BY_ADMIN, 
+        CONSOLIDATED, 
+        AWAITING_PO_APPROVAL,  // This is when HOD approved and waiting for budget approval
+        PO_APPROVED,           // Budget approved, ready for procurement
+        SENT_TO_PROCUREMENT,   // Sent to buyer for purchase order creation
+        PENDING_PO_APPROVAL, 
+        PO_REJECTED            // Budget rejected
+    }
 
     // Getters and Setters
     public Long getId() { return id; }

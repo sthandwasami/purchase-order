@@ -51,15 +51,21 @@ public class RequisitionRequestServiceImpl implements RequisitionRequestService 
     @Override
     @Transactional(readOnly = true)
     public List<RequisitionRequest> findPendingRequestsForHod(User hod) {
-        return requestRepository.findPendingRequestsForHod(hod.getDepartment());
+        return requestRepository.findAllPendingRequestsForHod(hod.getDepartment());
     }
 
     @Override
     public RequisitionRequest approveRequest(Long requestId, User hod) {
+        return approveRequest(requestId, hod, null);
+    }
+    
+    @Override
+    public RequisitionRequest approveRequest(Long requestId, User hod, String comments) {
         RequisitionRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
         
-        if (!request.getDepartment().equals(hod.getDepartment())) {
+        if (!request.getDepartment().equals(hod.getDepartment()) && 
+            !(request.getUser().getRole() == User.Role.HOD && request.getUser().getDepartment().equals(hod.getDepartment()))) {
             throw new RuntimeException("HOD can only approve requests from their department");
         }
         
@@ -69,14 +75,22 @@ public class RequisitionRequestServiceImpl implements RequisitionRequestService 
         
         RequisitionRequest savedRequest = requestRepository.save(request);
         
+        // Automatically convert approved request to requisition for approver review
+        convertApprovedRequestToRequisition(savedRequest);
+        
         // Notify user of approval
-        notificationService.notifyUserOfRequestApproval(savedRequest);
+        notificationService.notifyUserOfRequestApproval(savedRequest, comments);
         
         return savedRequest;
     }
 
     @Override
     public RequisitionRequest rejectRequest(Long requestId, String reason, User hod) {
+        return rejectRequest(requestId, reason, hod, null);
+    }
+    
+    @Override
+    public RequisitionRequest rejectRequest(Long requestId, String reason, User hod, String comments) {
         RequisitionRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
         
@@ -92,7 +106,7 @@ public class RequisitionRequestServiceImpl implements RequisitionRequestService 
         RequisitionRequest savedRequest = requestRepository.save(request);
         
         // Notify user of rejection
-        notificationService.notifyUserOfRequestRejection(savedRequest);
+        notificationService.notifyUserOfRequestRejection(savedRequest, comments);
         
         return savedRequest;
     }
@@ -219,6 +233,32 @@ public class RequisitionRequestServiceImpl implements RequisitionRequestService 
         requisition.setDepartment(request.getDepartment());
         requisition.setUser(request.getUser());
         requisition.setStatus(Requisition.Status.AWAITING_PO_APPROVAL);
+        
+        // Save requisition
+        Requisition savedRequisition = requisitionRepository.save(requisition);
+        
+        // Update original request status
+        request.setStatus(RequisitionRequest.Status.CONVERTED_TO_REQUISITION);
+        requestRepository.save(request);
+        
+        // Notify approver of new requisition
+        notificationService.notifyApproverOfNewRequisition(savedRequisition);
+    }
+    
+    private void convertApprovedRequestToRequisition(RequisitionRequest request) {
+        Requisition requisition = new Requisition();
+        cicosy.templete.domain.RequisitionItem item = new cicosy.templete.domain.RequisitionItem();
+        item.setName(request.getItem());
+        item.setQuantity(request.getQuantity());
+        item.setSpecifications(request.getDescription());
+        item.setRequisition(requisition);
+
+        requisition.setItems(java.util.Collections.singletonList(item));
+        requisition.setPriority(Requisition.Priority.valueOf(request.getPriority().name()));
+        requisition.setDepartment(request.getDepartment());
+        requisition.setUser(request.getUser());
+        requisition.setStatus(Requisition.Status.AWAITING_PO_APPROVAL);
+        requisition.setWalkIn(request.isWalkIn());
         
         // Save requisition
         Requisition savedRequisition = requisitionRepository.save(requisition);

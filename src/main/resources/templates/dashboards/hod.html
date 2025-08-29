@@ -1,247 +1,418 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>HOD Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard - Purchase Requisitions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: auto auto;
-            gap: 20px;
-            margin: 20px 0;
+        :root {
+            --primary-green: #025f46;
+            --dark-green: #014d3a;
+            --light-green: #d1fae5;
+            --accent-green: #059669;
+            --darker-green: #013b2e;
         }
-
-        .dashboard-card {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            min-height: 100vh;
+            width: 280px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
             border-radius: 8px;
-            padding: 20px;
-            position: relative;
+            margin: 4px 12px;
+            transition: all 0.3s ease;
         }
-
-        .card-header {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 15px;
-            color: #006400;
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+        }
+        .dashboard-header {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            height: 120px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
         }
-
-        .notification-badge {
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            padding: 4px 8px;
-            font-size: 0.8em;
-            min-width: 20px;
-            text-align: center;
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         }
-
-        .action-button {
-            background: #006400;
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+        .stat-icon.pending { background: #fff3cd; color: #856404; }
+        .stat-icon.approved { background: var(--light-green); color: var(--dark-green); }
+        .stat-icon.total { background: #e7f3ff; color: #0066cc; }
+        .stat-icon.feedback { background: #f8d7da; color: #721c24; }
+        .content-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+        .section-header {
+            background: var(--primary-green);
             color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .section-body {
+            padding: 1.5rem;
+        }
+        .btn-primary-custom {
+            background: var(--primary-green);
             border: none;
+            color: white;
             padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin: 2px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
         }
-
-        .action-button:hover {
-            background: #004d00;
+        .btn-primary-custom:hover {
+            background: var(--darker-green);
+            color: white;
+            transform: translateY(-1px);
         }
-
-        .recent-item {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9em;
+        .table-custom {
+            margin-bottom: 0;
         }
-
-        .recent-item:last-child {
-            border-bottom: none;
+        .table-custom th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            padding: 12px;
         }
-
-        .status-approved { color: #28a745; }
-        .status-rejected { color: #dc3545; }
-        .status-pending { color: #ffc107; }
-
-        .stats-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #006400;
-            display: block;
+        .table-custom td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
-
-<div class="container">
-    <h1>HOD Dashboard - <span th:text="${departmentName}">Department</span></h1>
-    <p>Welcome, <span sec:authentication="name"></span>!</p>
-
-    <div class="dashboard-grid">
-        <!-- Pending Reviews (User Requests) -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <span>PENDING REVIEWS (User Requests)</span>
-                <span class="notification-badge" th:if="${pendingRequestCount > 0}"
-                      th:text="${pendingRequestCount}">3</span>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-3">
+            <h4><i class="fas fa-user-tie me-2"></i>HOD Portal</h4>
+            <small class="text-light opacity-75">Department Management</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="/dashboard">
+                <i class="fas fa-home me-2"></i>Dashboard
+            </a>
+            <a class="nav-link" href="/requests">
+                <i class="fas fa-clipboard-check me-2"></i>Review Requests
+            </a>
+            <a class="nav-link" href="/requests/new">
+                <i class="fas fa-plus me-2"></i>New Request
+            </a>
+            <a class="nav-link" href="/requests/walk-in">
+                <i class="fas fa-walking me-2"></i>Walk-in Request
+            </a>
+            <a class="nav-link" href="/requests/consolidate">
+                <i class="fas fa-layer-group me-2"></i>Consolidate
+            </a>
+            <a class="nav-link" href="/reports/dept">
+                <i class="fas fa-chart-bar me-2"></i>Department Reports
+            </a>
+            <hr class="text-light">
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle me-2"></i>Account
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-home me-2"></i>Main Dashboard</a></li>
+                    <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><form action="/logout" method="post" style="display:inline;"><button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></form></li>
+                </ul>
             </div>
-            <div class="card-body">
-                <div th:if="${pendingRequestCount > 0}">
-                    <div th:each="request : ${pendingRequests}" class="recent-item">
-                        <strong th:text="${request.item}">Item</strong>
-                        <span th:text="'(Qty: ' + ${request.quantity} + ')'"></span>
-                        <br/>
-                        <small>From: <span th:text="${request.user.username}">user</span></small>
-                        <small th:text="'Priority: ' + ${request.priority}">Priority</small>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1">
+                        <i class="fas fa-user-tie me-3 text-success"></i>
+                        Department Management Center
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Welcome, <strong><span sec:authentication="name"></span></strong> • 
+                        <span th:text="${departmentName ?: 'Department'}">Department</span> Head of Department
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="quick-actions">
+                        <a href="/requests/new" class="btn btn-primary-custom">
+                            <i class="fas fa-plus me-1"></i>New Request
+                        </a>
+                        <a href="/requests/walk-in" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-walking me-1"></i>Walk-in
+                        </a>
                     </div>
                 </div>
-                <div th:if="${pendingRequestCount == 0}">
-                    <p>No pending requests</p>
-                </div>
-                <a href="/requests" class="action-button">View All</a>
             </div>
         </div>
 
-        <!-- My Requisitions (HOD Created) -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <span>MY REQUESTS</span>
-                <span class="notification-badge" th:if="${myRequestCount > 0}"
-                      th:text="${myRequestCount}">5</span>
-            </div>
-            <div class="card-body">
-                <div th:if="${myRequestCount > 0}">
-                    <div th:each="request : ${myRequests}" class="recent-item">
-                        <strong th:text="${request.item}">Item</strong>
-                        <br/>
-                        <small class="status-approved"
-                               th:if="${request.status.name() == 'APPROVED_BY_HOD'}"
-                               th:text="${request.status}">Status</small>
-                        <small class="status-rejected"
-                               th:if="${request.status.name() == 'REJECTED_BY_HOD'}"
-                               th:text="${request.status}">Status</small>
-                        <small class="status-pending"
-                               th:if="${request.status.name() == 'PENDING_HOD_REVIEW'}"
-                               th:text="${request.status}">Status</small>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1" th:text="${pendingRequestCount ?: 0}">0</h4>
+                        <p class="text-muted mb-0 small">Pending Reviews</p>
                     </div>
                 </div>
-                <div th:if="${myRequestCount == 0}">
-                    <p>No personal requests</p>
-                </div>
-                <a href="/requests?filter=mine" class="action-button">View All</a>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <span>QUICK ACTIONS</span>
-            </div>
-            <div class="card-body">
-                <a href="/requests/new" class="action-button">New Request</a>
-                <a href="/requests/new-walk-in" class="action-button">Walk-in Request</a>
-                <form th:action="@{/requests/consolidate}" method="post" style="display: inline;">
-                    <button type="submit" class="action-button">Consolidate Approved</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Approved/Waiting (For PO Module) -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <span>APPROVED/WAITING (For Budget Approval)</span>
-                <span class="notification-badge" th:if="${approvedRequestCount > 0}"
-                      th:text="${approvedRequestCount}">12</span>
-            </div>
-            <div class="card-body">
-                <div th:if="${approvedRequestCount > 0}">
-                    <div th:each="request : ${approvedRequests}" class="recent-item">
-                        <strong th:text="${request.item}">Item</strong>
-                        <br/>
-                        <small>Est. Cost: $<span th:text="${request.estimatedCost}">0.00</span></small>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon approved">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1" th:text="${approvedRequestCount ?: 0}">0</h4>
+                        <p class="text-muted mb-0 small">Approved Requests</p>
                     </div>
                 </div>
-                <div th:if="${approvedRequestCount == 0}">
-                    <p>No approved requests pending budget approval</p>
-                </div>
-                <a href="/requests?filter=approved" class="action-button">Review</a>
             </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <span>RECENT ACTIVITY</span>
-            </div>
-            <div class="card-body">
-                <div th:if="${recentActivity != null and #lists.size(recentActivity) > 0}">
-                    <div th:each="activity : ${recentActivity}" class="recent-item">
-                        <span th:text="${activity.item}">Activity</span>
-                        <br/>
-                        <small th:text="${#temporals.format(activity.updatedAt, 'MMM dd, HH:mm')}">Time</small>
-                        <small class="status-approved"
-                               th:if="${activity.status.name() == 'APPROVED_BY_HOD'}"
-                               th:text="'- ' + ${activity.status}">Status</small>
-                        <small class="status-rejected"
-                               th:if="${activity.status.name() == 'REJECTED_BY_HOD'}"
-                               th:text="'- ' + ${activity.status}">Status</small>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1" th:text="${myRequestCount ?: 0}">0</h4>
+                        <p class="text-muted mb-0 small">My Requests</p>
                     </div>
                 </div>
-                <div th:if="${recentActivity == null or #lists.size(recentActivity) == 0}">
-                    <p>No recent activity</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon feedback">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1" th:text="${recentFeedback?.size() ?: 0}">0</h4>
+                        <p class="text-muted mb-0 small">Recent Feedback</p>
+                    </div>
                 </div>
-                <a href="/requests?filter=recent" class="action-button">Activity Log</a>
             </div>
         </div>
 
-        <!-- Department Stats -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <span>DEPARTMENT STATS</span>
+        <!-- Pending Reviews Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <div>
+                    <i class="fas fa-clipboard-check me-2"></i>
+                    Pending Reviews
+                </div>
+                <small class="opacity-75">Requires your attention</small>
             </div>
-            <div class="card-body">
-                <p>Total Requests: <span class="stats-number" th:text="${totalDepartmentRequests}">25</span></p>
-                <p>Pending Reviews: <span th:text="${pendingRequestCount}">3</span></p>
-                <p>Approved Waiting: <span th:text="${approvedRequestCount}">12</span></p>
-                <a href="/reports/department" class="action-button">Budget Status</a>
+            <div class="section-body">
+                <div th:if="${pendingRequests == null or pendingRequests.empty}" class="empty-state">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <h5>All Caught Up!</h5>
+                    <p class="mb-0">No pending requests to review at the moment.</p>
+                </div>
+                
+                <div th:if="${pendingRequests != null and !pendingRequests.empty}">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Request Details</th>
+                                    <th>Requester</th>
+                                    <th>Priority</th>
+                                    <th>Submitted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="request : ${pendingRequests}">
+                                    <td>
+                                        <div>
+                                            <strong th:text="${request.item}">Item Name</strong>
+                                            <span th:if="${request.walkIn}" class="badge badge-custom bg-info ms-2">Walk-in</span>
+                                            <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle me-2 text-muted"></i>
+                                            <div>
+                                                <span th:text="${request.user.username}">Username</span>
+                                                <br><small class="text-muted" th:text="${request.department.name}">Department</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom" 
+                                              th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                              th:text="${request.priority}">Priority</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</span>
+                                        <br><small class="text-muted" th:text="${#temporals.format(request.createdAt, 'HH:mm')}">Time</small>
+                                    </td>
+                                    <td>
+                                        <div class="quick-actions">
+                                            <a th:href="@{/requests/review/{id}(id=${request.id})}" class="action-btn btn-success">
+                                                <i class="fas fa-eye"></i> Review
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Personal Requests Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <div>
+                    <i class="fas fa-user me-2"></i>
+                    My Personal Requests
+                </div>
+                <small class="opacity-75">Requests I submitted</small>
+            </div>
+            <div class="section-body">
+                <div th:if="${myRequests == null or myRequests.empty}" class="empty-state">
+                    <i class="fas fa-plus-circle"></i>
+                    <h5>No Personal Requests</h5>
+                    <p class="mb-3">You haven't submitted any personal requests yet.</p>
+                    <a href="/requests/new" class="btn btn-primary-custom">
+                        <i class="fas fa-plus me-2"></i>Create First Request
+                    </a>
+                </div>
+                
+                <div th:if="${myRequests != null and !myRequests.empty}">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="request : ${myRequests}">
+                                    <td>
+                                        <strong th:text="${request.item}">Item Name</strong>
+                                        <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom" 
+                                              th:classappend="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'bg-warning text-dark' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'bg-success' : 'bg-danger')"
+                                              th:text="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'Pending' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'Approved' : 'Rejected')">Status</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom" 
+                                              th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                              th:text="${request.priority}">Priority</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#temporals.format(request.createdAt, 'MMM dd')}">Date</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/requests/{id}(id=${request.id})}" class="action-btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Feedback Section -->
-    <div class="dashboard-card" th:if="${recentFeedback != null and #lists.size(recentFeedback) > 0}"
-         style="margin-top: 20px;">
-        <div class="card-header">
-            <span>RECENT BUDGET APPROVAL FEEDBACK</span>
-        </div>
-        <div class="card-body">
-            <div th:each="feedback : ${recentFeedback}" class="recent-item">
-                <strong th:text="${feedback.consolidatedItem}">Item</strong>
-                <span th:text="'($' + ${feedback.totalEstimatedCost} + ')'"></span>
-                <br/>
-                <small class="status-approved"
-                       th:if="${feedback.status.name() == 'APPROVED_BY_BUDGET'}"
-                       th:text="'✓ APPROVED by budget approver'">Approved</small>
-                <small class="status-rejected"
-                       th:if="${feedback.status.name() == 'REJECTED_BY_BUDGET'}"
-                       th:text="'✗ REJECTED: ' + ${feedback.reasonForRejection}">Rejected</small>
-                <br/>
-                <small th:text="'Approved at: ' + ${#temporals.format(feedback.budgetApprovedAt, 'MMM dd, yyyy HH:mm')}">Time</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

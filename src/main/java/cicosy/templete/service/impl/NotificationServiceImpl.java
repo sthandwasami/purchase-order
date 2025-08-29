@@ -295,17 +295,60 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notifyHodOfNewRequest(cicosy.templete.domain.RequisitionRequest savedRequest) {
-        logger.info("Notifying HOD of new request: {}", savedRequest.getId());
+        if (savedRequest.getDepartment() != null && savedRequest.getDepartment().getHod() != null) {
+            String message = String.format(
+                "New request #%d submitted by %s. Item: %s. Priority: %s. Business Justification: %s",
+                savedRequest.getId(),
+                savedRequest.getUser().getUsername(),
+                savedRequest.getItem(),
+                savedRequest.getPriority(),
+                savedRequest.getBusinessJustification()
+            );
+            
+            logger.info("HOD NOTIFICATION: Notifying HOD {} of new request {}",
+                savedRequest.getDepartment().getHod().getUsername(), savedRequest.getId());
+            
+            notifySpecificUser(savedRequest.getDepartment().getHod(), "New Request for Review", message);
+        }
     }
 
     @Override
     public void notifyUserOfRequestApproval(cicosy.templete.domain.RequisitionRequest savedRequest) {
-        logger.info("Notifying user of request approval: {}", savedRequest.getId());
+        notifyUserOfRequestApproval(savedRequest, null);
+    }
+    
+    public void notifyUserOfRequestApproval(cicosy.templete.domain.RequisitionRequest savedRequest, String comments) {
+        String message = String.format(
+            "Your request #%d has been approved by HOD. Item: %s. %s",
+            savedRequest.getId(),
+            savedRequest.getItem(),
+            comments != null ? "Comments: " + comments : ""
+        );
+        
+        logger.info("USER NOTIFICATION: Request {} approved for user {}", 
+            savedRequest.getId(), savedRequest.getUser().getUsername());
+        
+        notifySpecificUser(savedRequest.getUser(), "Request Approved", message);
     }
 
     @Override
     public void notifyUserOfRequestRejection(cicosy.templete.domain.RequisitionRequest savedRequest) {
-        logger.info("Notifying user of request rejection: {}", savedRequest.getId());
+        notifyUserOfRequestRejection(savedRequest, null);
+    }
+    
+    public void notifyUserOfRequestRejection(cicosy.templete.domain.RequisitionRequest savedRequest, String comments) {
+        String message = String.format(
+            "Your request #%d has been rejected by HOD. Item: %s. Reason: %s. %s",
+            savedRequest.getId(),
+            savedRequest.getItem(),
+            savedRequest.getReasonForRejection(),
+            comments != null ? "Additional Comments: " + comments : ""
+        );
+        
+        logger.warn("USER NOTIFICATION: Request {} rejected for user {}. Reason: {}", 
+            savedRequest.getId(), savedRequest.getUser().getUsername(), savedRequest.getReasonForRejection());
+        
+        notifySpecificUser(savedRequest.getUser(), "Request Rejected", message);
     }
 
     @Override

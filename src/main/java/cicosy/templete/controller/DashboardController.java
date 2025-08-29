@@ -52,19 +52,19 @@ public class DashboardController {
                 model.addAttribute("pendingRequisitions", requisitionService.findRequisitionsAwaitingBudgetApproval());
                 model.addAttribute("budgetSummary", budgetService.getAllCurrentBudgetStatus());
                 model.addAttribute("totalBudgetUtilization", budgetService.getDepartmentalBudgetSummary());
-                break;
+                return "dashboards/approver";
                 
             case BUYER:
                 // Buyer sees approved requisitions ready for procurement
                 model.addAttribute("approvedRequisitions", requisitionService.findApprovedRequisitions());
                 model.addAttribute("purchaseOrders", purchaseOrderService.findAll());
-                break;
+                return "dashboards/buyer";
                 
             default: // USER
                 // Regular users see their own requests and requisitions
                 model.addAttribute("myRequests", requestService.findRequestsForUser(user));
                 model.addAttribute("myRequisitions", requisitionService.findRequisitionsForUser(user));
-                break;
+                return "dashboards/user";
         }
 
         return "dashboard";

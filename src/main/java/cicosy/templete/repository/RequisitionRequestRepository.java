@@ -21,9 +21,13 @@ public interface RequisitionRequestRepository extends JpaRepository<RequisitionR
     
     List<RequisitionRequest> findByDepartmentAndStatus(Department department, RequisitionRequest.Status status);
     
-    // Find pending requests for HOD review by department
+    // Find pending requests for HOD review by department (including walk-in requests)
     @Query("SELECT r FROM RequisitionRequest r WHERE r.department = :department AND r.status = 'PENDING_HOD_REVIEW' ORDER BY r.priority DESC, r.createdAt ASC")
     List<RequisitionRequest> findPendingRequestsForHod(@Param("department") Department department);
+    
+    // Find all requests for HOD review including walk-in requests created by HOD
+    @Query("SELECT r FROM RequisitionRequest r WHERE (r.department = :department OR (r.user.role = 'HOD' AND r.user.department = :department)) AND r.status = 'PENDING_HOD_REVIEW' ORDER BY r.priority DESC, r.createdAt ASC")
+    List<RequisitionRequest> findAllPendingRequestsForHod(@Param("department") Department department);
     
     // Find requests that can be consolidated (approved by HOD, same item)
     @Query("SELECT r FROM RequisitionRequest r WHERE r.status = 'APPROVED_BY_HOD' AND r.item = :item AND r.department = :department")

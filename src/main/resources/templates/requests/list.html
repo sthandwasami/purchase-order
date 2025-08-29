@@ -1,54 +1,304 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Requisition Requests</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requisitions - Enterprise Procurement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #059669;
+            --dark-green: #047857;
+            --light-green: #d1fae5;
+            --accent-green: #10b981;
+            --darker-green: #065f46;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--darker-green));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .content-header {
+            background: var(--primary-green);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        .content-body {
+            padding: 1.5rem;
+        }
+        .btn-enterprise {
+            background: var(--primary-green);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        .btn-enterprise:hover {
+            background: var(--darker-green);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .status-pending { color: #ffc107; }
+        .status-approved { color: var(--accent-green); }
+        .status-rejected { color: #dc3545; }
+        .table-hover tbody tr:hover {
+            background-color: var(--light-green);
+        }
+        .filter-tabs {
+            background: var(--light-green);
+            border-radius: 10px;
+            padding: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-tab {
+            background: transparent;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--dark-green);
+            font-weight: 500;
+        }
+        .filter-tab.active {
+            background: var(--primary-green);
+            color: white;
+        }
+        .request-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .request-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
-<div class="container">
-    <h1>Requisition Requests</h1>
-    <div sec:authorize="hasAnyRole('USER', 'HOD')">
-        <a href="/requests/new" class="action-button">New Request</a>
+    <!-- Header -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-1">
+                        <i class="fas fa-list me-3"></i>
+                        My Requisitions
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        Track and manage your submitted requests • 
+                        <span sec:authentication="name"></span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group">
+                        <a href="/requests/new" class="btn btn-light">
+                            <i class="fas fa-plus me-2"></i>New Request
+                        </a>
+                        <a href="/dashboard" class="btn btn-outline-light">
+                            <i class="fas fa-arrow-left me-2"></i>Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Submitted By</th>
-            <th>Department</th>
-            <th>Created At</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="request : ${requests}">
-            <td th:text="${request.id}"></td>
-            <td th:text="${request.item}"></td>
-            <td th:text="${request.quantity}"></td>
-            <td th:text="${request.priority}"></td>
-            <td>
-                <span th:switch="${request.status.name()}">
-                    <span th:case="'APPROVED_BY_HOD'" style="color: green;" th:text="${request.status} + ' ✓'"></span>
-                    <span th:case="'REJECTED_BY_HOD'" style="color: red;" th:text="${request.status} + ' X'"></span>
-                    <span th:case="*" th:text="${request.status}"></span>
-                </span>
-            </td>
-            <td th:text="${request.user.username}"></td>
-            <td th:text="${request.department.name}"></td>
-            <td th:text="${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-            <td>
-                <a th:href="@{/requests/{id}(id=${request.id})}">View</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-<div th:replace="~{fragments/footer :: footer}"></div>
+
+    <div class="container">
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <div class="d-flex justify-content-center">
+                <button class="filter-tab active" onclick="filterRequests('all')">
+                    <i class="fas fa-list me-2"></i>All Requests
+                </button>
+                <button class="filter-tab" onclick="filterRequests('pending')">
+                    <i class="fas fa-clock me-2"></i>Pending
+                </button>
+                <button class="filter-tab" onclick="filterRequests('approved')">
+                    <i class="fas fa-check-circle me-2"></i>Approved
+                </button>
+                <button class="filter-tab" onclick="filterRequests('rejected')">
+                    <i class="fas fa-times-circle me-2"></i>Rejected
+                </button>
+            </div>
+        </div>
+
+        <!-- Requests List -->
+        <div class="content-card">
+            <div class="content-header">
+                <i class="fas fa-file-alt me-2"></i>
+                Request History
+                <small class="float-end opacity-75">
+                    <span th:text="${requests?.size() ?: 0}">0</span> total requests
+                </small>
+            </div>
+            <div class="content-body">
+                <div th:if="${requests == null or requests.empty}" class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <h4>No Requests Found</h4>
+                    <p class="text-muted">You haven't submitted any requests yet. Start by creating your first request.</p>
+                    <a href="/requests/new" class="btn btn-enterprise btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create First Request
+                    </a>
+                </div>
+
+                <div th:if="${requests != null and !requests.empty}">
+                    <!-- Desktop View -->
+                    <div class="d-none d-md-block">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Request Details</th>
+                                        <th>Item & Description</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="request : ${requests}" 
+                                        th:data-status="${request.status.name()}"
+                                        class="request-row">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="fas fa-file-alt fa-2x text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <strong th:text="'REQ-' + ${request.id}">#REQ-001</strong>
+                                                    <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong th:text="${request.item}">Item Name</strong>
+                                                <br><small class="text-muted" th:text="${#strings.abbreviate(request.description, 60)}">Description...</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning' : 'bg-secondary')"
+                                                  th:text="${request.priority}">Priority</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge fs-6" 
+                                                  th:classappend="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'bg-warning' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'bg-success' : 'bg-danger')"
+                                                  th:text="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'Pending Review' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'Approved' : 'Rejected')">Status</span>
+                                            <br><small class="text-muted" th:if="${request.reasonForRejection}" th:text="${#strings.abbreviate(request.reasonForRejection, 30)}">Reason</small>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</span>
+                                                <br><small class="text-muted" th:text="${#temporals.format(request.createdAt, 'HH:mm')}">Time</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{/requests/{id}(id=${request.id})}" class="btn btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mobile View -->
+                    <div class="d-md-none">
+                        <div th:each="request : ${requests}" 
+                             th:data-status="${request.status.name()}"
+                             class="request-card request-row">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <strong th:text="'REQ-' + ${request.id}">#REQ-001</strong>
+                                    <span class="badge ms-2" 
+                                          th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning' : 'bg-secondary')"
+                                          th:text="${request.priority}">Priority</span>
+                                </div>
+                                <span class="badge" 
+                                      th:classappend="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'bg-warning' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'bg-success' : 'bg-danger')"
+                                      th:text="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'Pending' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'Approved' : 'Rejected')">Status</span>
+                            </div>
+                            <h6 th:text="${request.item}">Item Name</h6>
+                            <p class="text-muted small mb-2" th:text="${#strings.abbreviate(request.description, 100)}">Description...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <span th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</span>
+                                </small>
+                                <a th:href="@{/requests/{id}(id=${request.id})}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filterRequests(status) {
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter rows
+            const rows = document.querySelectorAll('.request-row');
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute('data-status');
+                if (status === 'all') {
+                    row.style.display = '';
+                } else if (status === 'pending' && rowStatus === 'PENDING_HOD_REVIEW') {
+                    row.style.display = '';
+                } else if (status === 'approved' && rowStatus === 'APPROVED_BY_HOD') {
+                    row.style.display = '';
+                } else if (status === 'rejected' && rowStatus === 'REJECTED_BY_HOD') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Add loading animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.request-card, .request-row');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 </body>
 </html>

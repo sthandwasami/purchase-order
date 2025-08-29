@@ -37,35 +37,7 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("/login-type-selection")
-    public String selectLoginType(@RequestParam("loginType") String loginType,
-                                  @RequestParam("username") String username,
-                                  @RequestParam("password") String password,
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes) {
-        try {
-            User user = userService.findByUsername(username);
-            if (user == null) {
-                redirectAttributes.addFlashAttribute("error", "Invalid username or password");
-                return "redirect:/login";
-            }
-            
-            // Store login type preference in session
-            session.setAttribute("selectedLoginType", loginType);
-            
-            if ("DEPARTMENT".equals(loginType) && user.getRole() != User.Role.HOD) {
-                redirectAttributes.addFlashAttribute("error", "Only HODs can login as department representatives");
-                return "redirect:/login";
-            }
-            
-            // Redirect to Spring Security's login processing
-            return "redirect:/login?username=" + username;
-            
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Login failed: " + e.getMessage());
-            return "redirect:/login";
-        }
-    }
+
 
     @GetMapping("/signup")
     public String showSignupForm(Model model) {

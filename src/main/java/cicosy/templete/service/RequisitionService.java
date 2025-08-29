@@ -33,6 +33,10 @@ public interface RequisitionService {
     Requisition rejectRequisition(Long id, String reason);
     void consolidateRequisitions();
     
+    // Budget approval operations (for APPROVER role)
+    Requisition approveBudget(Long requisitionId, User approver, String comments);
+    Requisition rejectBudget(Long requisitionId, String reason, User approver, String comments);
+    
     // Procurement operations
     Requisition sendToProcurement(Long requisitionId);
     Requisition markAsCompleted(Long requisitionId, java.math.BigDecimal actualCost);

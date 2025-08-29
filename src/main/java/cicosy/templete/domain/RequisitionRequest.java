@@ -61,6 +61,9 @@ public class RequisitionRequest {
 
     @Column
     private LocalDateTime updatedAt = LocalDateTime.now();
+    
+    @Column(nullable = false)
+    private boolean walkIn = false;
 
     @PreUpdate
     protected void onUpdate() {
@@ -109,4 +112,6 @@ public class RequisitionRequest {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public boolean isWalkIn() { return walkIn; }
+    public void setWalkIn(boolean walkIn) { this.walkIn = walkIn; }
 }

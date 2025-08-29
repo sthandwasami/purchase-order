@@ -1,64 +1,111 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>New Walk-in Request</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walk-in Request - Enterprise Procurement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #025f46;
+            --dark-green: #014d3a;
+            --light-green: #d1fae5;
+            --accent-green: #059669;
+            --darker-green: #013b2e;
+        }
+        body { background-color: #f8f9fa; }
+        .form-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 2rem 0;
+        }
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        .btn-enterprise {
+            background: var(--primary-green);
+            border: none;
+            color: white;
+        }
+        .btn-enterprise:hover {
+            background: var(--dark-green);
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
-
-<div class="container">
-    <h1>New Walk-in Request</h1>
-
-    <form th:action="@{/requests/walk-in}" th:object="${request}" method="post">
-
-        <div class="form-group">
-            <label for="item">Item Name:</label>
-            <input type="text" id="item" th:field="*{item}" required />
+    <div class="form-header">
+        <div class="container">
+            <h1><i class="fas fa-walking me-3"></i>Walk-in Request</h1>
+            <p class="mb-0 opacity-75">Create a request for walk-in customers or urgent department needs</p>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" th:field="*{quantity}" required min="1" />
+    <div class="container">
+        <div class="form-card">
+            <div class="card-body p-4">
+                <form th:action="@{/requests/walk-in}" method="post" th:object="${request}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="item" class="form-label fw-semibold">Item/Service *</label>
+                                <input type="text" class="form-control" id="item" th:field="*{item}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label fw-semibold">Quantity *</label>
+                                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-semibold">Description *</label>
+                        <textarea class="form-control" id="description" th:field="*{description}" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="businessJustification" class="form-label fw-semibold">Business Justification *</label>
+                        <textarea class="form-control" id="businessJustification" th:field="*{businessJustification}" rows="3" required></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="priority" class="form-label fw-semibold">Priority *</label>
+                                <select class="form-select" id="priority" th:field="*{priority}" required>
+                                    <option value="">Select Priority</option>
+                                    <option th:each="priority : ${priorities}" th:value="${priority}" th:text="${priority}">Priority</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="department" class="form-label fw-semibold">Department</label>
+                                <select class="form-select" id="department" th:field="*{department}">
+                                    <option value="">Select Department</option>
+                                    <option th:each="dept : ${departments}" th:value="${dept.id}" th:text="${dept.name}">Department</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-enterprise">
+                            <i class="fas fa-save me-2"></i>Create Walk-in Request
+                        </button>
+                        <a href="/dashboard" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="description">Description:</label>
-            <textarea id="description" th:field="*{description}" rows="3"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="businessJustification">Business Justification:</label>
-            <textarea id="businessJustification" th:field="*{businessJustification}" rows="3" required></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="priority">Priority:</label>
-            <select id="priority" th:field="*{priority}" required>
-                <option value="">-- Select Priority --</option>
-                <option th:each="p : ${priorities}"
-                        th:value="${p}" th:text="${p.name()}"></option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="department">Department:</label>
-            <select id="department" th:field="*{department}" required>
-                <option value="">-- Select Department --</option>
-                <option th:each="dept : ${departments}"
-                        th:value="${dept.id}" th:text="${dept.name}"></option>
-            </select>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Submit Request</button>
-            <a th:href="@{/dashboard}" class="btn-secondary">Cancel</a>
-        </div>
-    </form>
-</div>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
 </body>
 </html>

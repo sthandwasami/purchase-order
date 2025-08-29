@@ -28,11 +28,13 @@ public interface NotificationService {
     void sendEmailNotification(String to, String subject, String body);
     void sendBulkEmailNotification(java.util.List<String> recipients, String subject, String body);
 
+    // Request-related notifications
     void notifyHodOfNewRequest(RequisitionRequest savedRequest);
-
     void notifyUserOfRequestApproval(RequisitionRequest savedRequest);
-
     void notifyUserOfRequestRejection(RequisitionRequest savedRequest);
-
     void notifyApproverOfNewRequisition(Requisition savedRequisition);
+    
+    // Overloaded methods with comments
+    void notifyUserOfRequestApproval(RequisitionRequest savedRequest, String comments);
+    void notifyUserOfRequestRejection(RequisitionRequest savedRequest, String comments);
 }

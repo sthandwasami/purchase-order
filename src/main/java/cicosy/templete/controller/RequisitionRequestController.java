@@ -103,6 +103,7 @@ public class RequisitionRequestController {
                                     RedirectAttributes redirectAttributes) {
         User hod = userService.findByUsername(principal.getName());
         request.setUser(hod); // HOD is creating on behalf of someone
+        request.setWalkIn(true); // Mark as walk-in request
         
         // Set to HOD's department if not specified
         if (request.getDepartment() == null) {
@@ -184,6 +185,52 @@ public class RequisitionRequestController {
         return "redirect:/requests";
     }
 
+    @GetMapping("/review/{id}")
+    @PreAuthorize("hasRole('HOD')")
+    public String showReviewForm(@PathVariable Long id, Model model, Principal principal) {
+        User hod = userService.findByUsername(principal.getName());
+        RequisitionRequest request = requestService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        
+        // Verify HOD can review this request
+        if (!request.getDepartment().equals(hod.getDepartment()) || 
+            request.getStatus() != RequisitionRequest.Status.PENDING_HOD_REVIEW) {
+            throw new RuntimeException("Cannot review this request");
+        }
+        
+        model.addAttribute("request", request);
+        return "requests/review";
+    }
+    
+    @PostMapping("/review/{id}")
+    @PreAuthorize("hasRole('HOD')")
+    public String processReview(@PathVariable Long id,
+                               @RequestParam String decision,
+                               @RequestParam(required = false) String reason,
+                               @RequestParam(required = false) String comments,
+                               Principal principal,
+                               RedirectAttributes redirectAttributes) {
+        User hod = userService.findByUsername(principal.getName());
+        
+        try {
+            if ("APPROVE".equals(decision)) {
+                requestService.approveRequest(id, hod, comments);
+                redirectAttributes.addFlashAttribute("success", "Request approved successfully.");
+            } else if ("REJECT".equals(decision)) {
+                if (reason == null || reason.trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "Rejection reason is required.");
+                    return "redirect:/requests/review/" + id;
+                }
+                requestService.rejectRequest(id, reason.trim(), hod, comments);
+                redirectAttributes.addFlashAttribute("success", "Request rejected with reason provided.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to process review: " + e.getMessage());
+        }
+        
+        return "redirect:/dashboard";
+    }
+
     @PostMapping("/consolidate")
     @PreAuthorize("hasRole('HOD')")
     public String consolidateRequests(Principal principal, RedirectAttributes redirectAttributes) {
@@ -197,5 +244,24 @@ public class RequisitionRequestController {
         }
         
         return "redirect:/dashboard";
+    }
+    
+    @GetMapping("/walk-in")
+    @PreAuthorize("hasRole('HOD')")
+    public String showWalkInForm(Model model) {
+        model.addAttribute("request", new RequisitionRequest());
+        model.addAttribute("departments", departmentRepository.findAll());
+        model.addAttribute("priorities", RequisitionRequest.Priority.values());
+        return "requests/walk-in-form";
+    }
+    
+    @GetMapping("/consolidate")
+    @PreAuthorize("hasRole('HOD')")
+    public String showConsolidateForm(Model model, Principal principal) {
+        User hod = userService.findByUsername(principal.getName());
+        model.addAttribute("approvedRequests", requestService.findDepartmentRequests(hod).stream()
+            .filter(r -> r.getStatus() == RequisitionRequest.Status.APPROVED_BY_HOD)
+            .collect(java.util.stream.Collectors.toList()));
+        return "requests/consolidate";
     }
 }
