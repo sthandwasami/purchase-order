@@ -93,7 +93,7 @@ public class RequisitionRequestController {
         model.addAttribute("request", new RequisitionRequest());
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("priorities", RequisitionRequest.Priority.values());
-        return "requests/walk-in-form";
+        return "requisitions/walk-in-form";
     }
 
     @PostMapping("/walk-in")
