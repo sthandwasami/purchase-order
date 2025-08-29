@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Requisition Requests</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="container">
+    <h1>Requisition Requests</h1>
+    <div sec:authorize="hasAnyRole('USER', 'HOD')">
+        <a href="/requests/new" class="action-button">New Request</a>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Submitted By</th>
+            <th>Department</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="request : ${requests}">
+            <td th:text="${request.id}"></td>
+            <td th:text="${request.item}"></td>
+            <td th:text="${request.quantity}"></td>
+            <td th:text="${request.priority}"></td>
+            <td>
+                <span th:switch="${request.status.name()}">
+                    <span th:case="'APPROVED_BY_HOD'" style="color: green;" th:text="${request.status} + ' ✓'"></span>
+                    <span th:case="'REJECTED_BY_HOD'" style="color: red;" th:text="${request.status} + ' X'"></span>
+                    <span th:case="*" th:text="${request.status}"></span>
+                </span>
+            </td>
+            <td th:text="${request.user.username}"></td>
+            <td th:text="${request.department.name}"></td>
+            <td th:text="${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+                <a th:href="@{/requests/{id}(id=${request.id})}">View</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

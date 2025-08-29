@@ -42,7 +42,7 @@ public class RequisitionRequestController {
         }
         
         model.addAttribute("requests", requests);
-        return "requisitions/list";
+        return "requests/list";
     }
 
     @GetMapping("/new")
@@ -59,7 +59,7 @@ public class RequisitionRequestController {
         model.addAttribute("request", request);
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("priorities", RequisitionRequest.Priority.values());
-        return "requisitions/request-form";
+        return "requests/form";
     }
 
     @PostMapping
@@ -93,7 +93,7 @@ public class RequisitionRequestController {
         model.addAttribute("request", new RequisitionRequest());
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("priorities", RequisitionRequest.Priority.values());
-        return "requisitions/walk-in-form";
+        return "requests/walk-in-form";
     }
 
     @PostMapping("/walk-in")
@@ -141,7 +141,7 @@ public class RequisitionRequestController {
             user.getRole() == User.Role.HOD && 
             request.getStatus() == RequisitionRequest.Status.PENDING_HOD_REVIEW);
         
-        return "requisitions/view-request";
+        return "requests/view";
     }
 
     @PostMapping("/{id}/approve")
