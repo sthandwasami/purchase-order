@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Overview - Purchase Requisitions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #025f46;
+            --dark-green: #014d3a;
+            --light-green: #d1fae5;
+            --accent-green: #059669;
+            --darker-green: #013b2e;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            min-height: 100vh;
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 4px 12px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .content-header {
+            background: var(--primary-green);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        .content-body {
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-3">
+            <h4><i class="fas fa-calculator me-2"></i>Budget Control</h4>
+            <small class="text-light opacity-75">Approver Dashboard</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/dashboard">
+                <i class="fas fa-home me-2"></i>Dashboard
+            </a>
+            <a class="nav-link" href="/requisitions/pending">
+                <i class="fas fa-clipboard-check me-2"></i>Pending Reviews
+            </a>
+            <a class="nav-link" href="/requisitions/approved-list">
+                <i class="fas fa-check-circle me-2"></i>Approved Requisitions
+            </a>
+            <a class="nav-link active" href="/budget/overview">
+                <i class="fas fa-chart-pie me-2"></i>Budget Overview
+            </a>
+            <a class="nav-link" href="/budget/reports">
+                <i class="fas fa-file-alt me-2"></i>Budget Reports
+            </a>
+            <hr class="text-light">
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle me-2"></i>Account
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-home me-2"></i>Main Dashboard</a></li>
+                    <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-card">
+            <div class="content-header">
+                <i class="fas fa-chart-pie me-2"></i>
+                Budget Overview
+            </div>
+            <div class="content-body">
+                <h4>Departmental Budget Analysis</h4>
+                <p>Comprehensive view of budget allocation and utilization across all departments.</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>IT Department</h5>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-success" style="width: 75%">75% Utilized</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>HR Department</h5>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-warning" style="width: 85%">85% Utilized</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

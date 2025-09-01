@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Request - Enterprise Procurement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #28a745;
+            --dark-green: #1e7e34;
+            --light-green: #d4edda;
+        }
+        body { background-color: #f8f9fa; }
+        .review-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 2rem 0;
+        }
+        .review-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn-approve { background: var(--primary-green); border: none; }
+        .btn-approve:hover { background: var(--dark-green); }
+        .btn-reject { background: #dc3545; border: none; }
+        .btn-reject:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="review-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-clipboard-check me-3"></i>Review Request</h1>
+                    <p class="mb-0 opacity-75">Request ID: REQ-<span th:text="${request.id}">001</span></p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/dashboard" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="review-card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Requested by:</strong> <span th:text="${request.user.username}">User</span></p>
+                                <p><strong>Department:</strong> <span th:text="${request.department.name}">Department</span></p>
+                                <p><strong>Date Submitted:</strong> <span th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy HH:mm')}">Date</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Priority:</strong> 
+                                    <span class="badge" 
+                                          th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning' : 'bg-secondary')"
+                                          th:text="${request.priority}">Priority</span>
+                                </p>
+                                <p><strong>Estimated Cost:</strong> 
+                                    <span th:if="${request.estimatedCost}" th:text="'$' + ${#numbers.formatDecimal(request.estimatedCost, 1, 2)}">$0.00</span>
+                                    <span th:unless="${request.estimatedCost}" class="text-muted">Not specified</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <p><strong>Item Requested:</strong></p>
+                                <p class="bg-light p-3 rounded" th:text="${request.item}">Item description</p>
+                                
+                                <p><strong>Quantity:</strong> <span th:text="${request.quantity}">1</span></p>
+                                
+                                <p><strong>Description:</strong></p>
+                                <p class="bg-light p-3 rounded" th:text="${request.description}">Description</p>
+                                
+                                <p><strong>Business Justification:</strong></p>
+                                <p class="bg-light p-3 rounded" th:text="${request.businessJustification}">Justification</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="review-card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Review Decision</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/requests/review/{id}(id=${request.id})}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Decision:</label>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="decision" id="approve" value="APPROVE" required>
+                                    <label class="form-check-label text-success" for="approve">
+                                        <i class="fas fa-check-circle me-1"></i>Approve Request
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="decision" id="reject" value="REJECT" required>
+                                    <label class="form-check-label text-danger" for="reject">
+                                        <i class="fas fa-times-circle me-1"></i>Reject Request
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3" id="reasonSection" style="display: none;">
+                                <label for="reason" class="form-label fw-bold">Reason for Rejection:</label>
+                                <textarea class="form-control" id="reason" name="reason" rows="3" 
+                                          placeholder="Please provide a clear reason for rejection..."></textarea>
+                                <small class="text-muted">This will be communicated to the requester</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="comments" class="form-label fw-bold">Additional Comments (Optional):</label>
+                                <textarea class="form-control" id="comments" name="comments" rows="2" 
+                                          placeholder="Any additional notes or instructions..."></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Decision
+                                </button>
+                                <a href="/dashboard" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Review Guidelines -->
+                <div class="review-card mt-3">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Review Guidelines</h6>
+                    </div>
+                    <div class="card-body">
+                        <small class="text-muted">
+                            <ul class="mb-0 ps-3">
+                                <li>Verify business justification validity</li>
+                                <li>Check if request aligns with department needs</li>
+                                <li>Ensure proper documentation</li>
+                                <li>Consider priority and urgency</li>
+                                <li>Budget approval is handled separately</li>
+                            </ul>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show/hide reason section based on decision
+        document.querySelectorAll('input[name="decision"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const reasonSection = document.getElementById('reasonSection');
+                const reasonTextarea = document.getElementById('reason');
+                
+                if (this.value === 'REJECT') {
+                    reasonSection.style.display = 'block';
+                    reasonTextarea.required = true;
+                } else {
+                    reasonSection.style.display = 'none';
+                    reasonTextarea.required = false;
+                    reasonTextarea.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

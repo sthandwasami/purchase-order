@@ -62,8 +62,19 @@ public class DashboardController {
                 
             default: // USER
                 // Regular users see their own requests and requisitions
-                model.addAttribute("myRequests", requestService.findRequestsForUser(user));
+                var myRequests = requestService.findRequestsForUser(user);
+                model.addAttribute("myRequests", myRequests);
                 model.addAttribute("myRequisitions", requisitionService.findRequisitionsForUser(user));
+                
+                // Add status counts
+                long pendingCount = myRequests.stream().filter(r -> r.getStatus() == cicosy.templete.domain.RequisitionRequest.Status.PENDING_HOD_REVIEW).count();
+                long approvedCount = myRequests.stream().filter(r -> r.getStatus() == cicosy.templete.domain.RequisitionRequest.Status.APPROVED_BY_HOD).count();
+                long rejectedCount = myRequests.stream().filter(r -> r.getStatus() == cicosy.templete.domain.RequisitionRequest.Status.REJECTED_BY_HOD).count();
+                
+                model.addAttribute("pendingCount", pendingCount);
+                model.addAttribute("approvedCount", approvedCount);
+                model.addAttribute("rejectedCount", rejectedCount);
+                
                 return "dashboards/user";
         }
 
