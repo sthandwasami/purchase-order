@@ -1,60 +1,376 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Requisitions</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requisitions Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #025f46;
+            --dark-green: #014d3a;
+            --light-green: #d1fae5;
+            --accent-green: #059669;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .filter-tabs {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .nav-tabs {
+            border-bottom: none;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs .nav-link.active {
+            background: var(--primary-green);
+            color: white;
+        }
+        .nav-tabs .nav-link:hover {
+            background: var(--light-green);
+            color: var(--dark-green);
+        }
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-custom {
+            margin-bottom: 0;
+        }
+        .table-custom th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            padding: 12px;
+        }
+        .table-custom td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .stats-row {
+            margin-bottom: 1rem;
+        }
+        .stat-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
-<h1>Requisitions</h1>
-<div sec:authorize="hasAnyRole('USER', 'HOD')">
-    <a href="/requisitions/new">New Requisition</a>
-</div>
-<table id="requisitionTable">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Item</th>
-        <th>Quantity</th>
-        <th>Priority</th>
-        <th>Status</th>
-        <th>Submitted By</th>
-        <th>Department</th>
-        <th>Created At</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="requisition : ${requisitions}">
-        <td th:text="${requisition.id}"></td>
-        <td th:text="${#strings.arrayJoin(#lists.sort(requisition.items.![name]), ', ')}"></td>
-        <td th:text="${#aggregates.sum(requisition.items.![quantity])}"></td>
-        <td th:text="${requisition.priority}"></td>
-        <td>
-            <span th:switch="${requisition.status.name()}">
-                <span th:case="'APPROVED_BY_ADMIN'" style="color: green;" th:text="${requisition.status} + ' ✓'"></span>
-                <span th:case="'REJECTED_BY_ADMIN'" style="color: red;" th:text="${requisition.status} + ' X'"></span>
-                <span th:case="*" th:text="${requisition.status}"></span>
-            </span>
-        </td>
-        <td th:text="${requisition.user.username}"></td>
-        <td th:text="${requisition.department.name}"></td>
-        <td th:text="${#temporals.format(requisition.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-        <td>
-            <a th:href="@{/requisitions/{id}(id=${requisition.id})}">View</a>
-            <div sec:authorize="hasRole('ADMIN')" th:if="${requisition.status.name() == 'PENDING_ADMIN_APPROVAL'}">
-                <form th:action="@{/requisitions/{id}/approve(id=${requisition.id})}" method="post" style="display:inline;">
-                    <button type="submit">Approve</button>
-                </form>
-                <form th:action="@{/requisitions/{id}/reject(id=${requisition.id})}" method="post" style="display:inline;">
-                    <input type="text" name="reason" placeholder="Reason for rejection" required/>
-                    <button type="submit">Reject</button>
-                </form>
+    <!-- Header -->
+    <div class="header-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-1">
+                        <i class="fas fa-clipboard-list me-3"></i>
+                        Requisitions Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        Manage and track all requisitions
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/dashboard" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
             </div>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="row stats-row">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-item">
+                    <div class="stat-number text-primary" id="allCount">0</div>
+                    <div class="stat-label">All Requests</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-item">
+                    <div class="stat-number text-warning" id="pendingCount">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-item">
+                    <div class="stat-number text-success" id="approvedCount">0</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-item">
+                    <div class="stat-number text-danger" id="rejectedCount">0</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <ul class="nav nav-tabs" id="filterTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                        <i class="fas fa-list me-2"></i>All Requests
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                        <i class="fas fa-clock me-2"></i>Pending
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
+                        <i class="fas fa-check-circle me-2"></i>Approved
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
+                        <i class="fas fa-times-circle me-2"></i>Rejected
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="filterTabsContent">
+            <!-- All Requests -->
+            <div class="tab-pane fade show active" id="all" role="tabpanel">
+                <div class="content-card">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Items</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Requester</th>
+                                    <th>Department</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allRequisitions">
+                                <tr th:each="requisition : ${requisitions}">
+                                    <td><strong>REQ-<span th:text="${requisition.id}">001</span></strong></td>
+                                    <td>
+                                        <div th:if="${requisition.items != null and !requisition.items.empty}">
+                                            <span th:text="${#strings.listJoin(requisition.items.![name], ', ')}">Items</span>
+                                            <br><small class="text-muted">Total Qty: <span th:text="${#aggregates.sum(requisition.items.![quantity])}">0</span></small>
+                                        </div>
+                                        <div th:unless="${requisition.items != null and !requisition.items.empty}">
+                                            <span class="text-muted">No items</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge" 
+                                              th:classappend="${requisition.priority.name() == 'HIGH'} ? 'bg-danger' : 
+                                                             (${requisition.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                              th:text="${requisition.priority}">Priority</span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge" 
+                                              th:classappend="${#strings.contains(requisition.status.name(), 'PENDING')} ? 'bg-warning text-dark' : 
+                                                             (${#strings.contains(requisition.status.name(), 'APPROVED')} ? 'bg-success' : 
+                                                             (${#strings.contains(requisition.status.name(), 'REJECTED')} ? 'bg-danger' : 'bg-secondary'))"
+                                              th:text="${requisition.status}">Status</span>
+                                    </td>
+                                    <td th:text="${requisition.user.username}">User</td>
+                                    <td th:text="${requisition.department.name}">Department</td>
+                                    <td th:text="${#temporals.format(requisition.createdAt, 'MMM dd, yyyy')}">Date</td>
+                                    <td>
+                                        <a th:href="@{/requisitions/{id}(id=${requisition.id})}" class="btn btn-outline-primary btn-action">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Requests -->
+            <div class="tab-pane fade" id="pending" role="tabpanel">
+                <div class="content-card">
+                    <div id="pendingContent">
+                        <div class="empty-state">
+                            <i class="fas fa-clock"></i>
+                            <h5>Loading pending requests...</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approved Requests -->
+            <div class="tab-pane fade" id="approved" role="tabpanel">
+                <div class="content-card">
+                    <div id="approvedContent">
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h5>Loading approved requests...</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rejected Requests -->
+            <div class="tab-pane fade" id="rejected" role="tabpanel">
+                <div class="content-card">
+                    <div id="rejectedContent">
+                        <div class="empty-state">
+                            <i class="fas fa-times-circle"></i>
+                            <h5>Loading rejected requests...</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const allRequisitions = Array.from(document.querySelectorAll('#allRequisitions tr'));
+            
+            // Update statistics
+            updateStatistics(allRequisitions);
+            
+            // Handle tab switching
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function(e) {
+                    const target = e.target.getAttribute('data-bs-target');
+                    filterRequisitions(target.substring(1));
+                });
+            });
+            
+            function updateStatistics(requisitions) {
+                const pending = requisitions.filter(row => {
+                    const statusText = row.querySelector('.status-badge').textContent.toLowerCase();
+                    return statusText.includes('pending');
+                });
+                
+                const approved = requisitions.filter(row => {
+                    const statusText = row.querySelector('.status-badge').textContent.toLowerCase();
+                    return statusText.includes('approved');
+                });
+                
+                const rejected = requisitions.filter(row => {
+                    const statusText = row.querySelector('.status-badge').textContent.toLowerCase();
+                    return statusText.includes('rejected');
+                });
+                
+                document.getElementById('allCount').textContent = requisitions.length;
+                document.getElementById('pendingCount').textContent = pending.length;
+                document.getElementById('approvedCount').textContent = approved.length;
+                document.getElementById('rejectedCount').textContent = rejected.length;
+            }
+            
+            function filterRequisitions(filter) {
+                const contentMap = {
+                    'pending': document.getElementById('pendingContent'),
+                    'approved': document.getElementById('approvedContent'),
+                    'rejected': document.getElementById('rejectedContent')
+                };
+                
+                if (!contentMap[filter]) return;
+                
+                const filteredRows = allRequisitions.filter(row => {
+                    const statusText = row.querySelector('.status-badge').textContent.toLowerCase();
+                    switch(filter) {
+                        case 'pending':
+                            return statusText.includes('pending');
+                        case 'approved':
+                            return statusText.includes('approved');
+                        case 'rejected':
+                            return statusText.includes('rejected');
+                        default:
+                            return true;
+                    }
+                });
+                
+                if (filteredRows.length === 0) {
+                    contentMap[filter].innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-${filter === 'pending' ? 'clock' : filter === 'approved' ? 'check-circle' : 'times-circle'}"></i>
+                            <h5>No ${filter} requests</h5>
+                            <p class="mb-0">There are no ${filter} requisitions at the moment.</p>
+                        </div>
+                    `;
+                } else {
+                    const table = document.querySelector('#allRequisitions').closest('table').cloneNode(true);
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = '';
+                    
+                    filteredRows.forEach(row => {
+                        tbody.appendChild(row.cloneNode(true));
+                    });
+                    
+                    contentMap[filter].innerHTML = `
+                        <div class="table-responsive">
+                            ${table.outerHTML}
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

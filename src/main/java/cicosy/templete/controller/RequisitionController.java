@@ -32,6 +32,9 @@ public class RequisitionController {
 
     @Autowired
     private NotificationService notificationService;
+    
+    @Autowired
+    private cicosy.templete.service.RequisitionRequestService requestService;
 
     @GetMapping
     public String listRequisitions(Model model, Principal principal) {
@@ -280,19 +283,39 @@ public class RequisitionController {
     }
     
     @GetMapping("/send-to-procurement/{id}")
-    @PreAuthorize("hasRole('APPROVER')")
+    @PreAuthorize("hasAnyRole('APPROVER', 'HOD')")
     public String sendToProcurement(@PathVariable Long id, RedirectAttributes redirectAttributes, Principal principal) {
         try {
-            User approver = userService.findByUsername(principal.getName());
-            Requisition requisition = requisitionService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Requisition not found"));
+            User user = userService.findByUsername(principal.getName());
             
-            // Update status to indicate it's been sent to procurement
-            requisition.setStatus(Requisition.Status.SENT_TO_PROCUREMENT);
-            requisitionService.save(requisition);
-            
-            redirectAttributes.addFlashAttribute("success", 
-                "Requisition #" + id + " has been forwarded to Procurement Department for purchase order creation.");
+            // Check if it's a request first
+            var requestOpt = requestService.findById(id);
+            if (requestOpt.isPresent()) {
+                var request = requestOpt.get();
+                
+                // Verify request is approved by HOD
+                if (request.getStatus() != cicosy.templete.domain.RequisitionRequest.Status.APPROVED_BY_HOD) {
+                    redirectAttributes.addFlashAttribute("error", "Request must be approved by HOD before sending to procurement.");
+                    return "redirect:/dashboard";
+                }
+                
+                // Update request status to indicate it's been sent to procurement
+                request.setStatus(cicosy.templete.domain.RequisitionRequest.Status.CONVERTED_TO_REQUISITION);
+                requestService.save(request);
+                
+                redirectAttributes.addFlashAttribute("success", 
+                    "Request #" + id + " has been forwarded to Procurement Department.");
+            } else {
+                // Handle requisitions
+                Requisition requisition = requisitionService.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Requisition not found"));
+                
+                requisition.setStatus(Requisition.Status.SENT_TO_PROCUREMENT);
+                requisitionService.save(requisition);
+                
+                redirectAttributes.addFlashAttribute("success", 
+                    "Requisition #" + id + " has been forwarded to Procurement Department for purchase order creation.");
+            }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to send to procurement: " + e.getMessage());
         }

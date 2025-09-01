@@ -145,6 +145,197 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
+        .enterprise-request-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .enterprise-request-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+            border-color: var(--accent-green);
+        }
+        .card-header-enterprise {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+        .card-header-enterprise::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid var(--dark-green);
+        }
+        .request-id-section .request-id {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .request-id-section .request-date {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .request-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+        .badge-walkin {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+        .badge-priority {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-priority.priority-high {
+            background: #dc3545;
+            color: white;
+        }
+        .badge-priority.priority-medium {
+            background: #ffc107;
+            color: #212529;
+        }
+        .badge-priority.priority-low {
+            background: #6c757d;
+            color: white;
+        }
+        .card-body-enterprise {
+            padding: 1.5rem;
+            flex-grow: 1;
+            background: #fafbfc;
+        }
+        .info-section {
+            margin-bottom: 1.25rem;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            border-left: 4px solid var(--accent-green);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .info-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .info-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--light-green);
+            color: var(--dark-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .info-title {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-content .item-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 0.5rem;
+        }
+        .item-details {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .quantity-badge, .cost-badge {
+            background: var(--light-green);
+            color: var(--dark-green);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .cost-badge {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .requester-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 0.25rem;
+        }
+        .requester-dept {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .justification-text {
+            font-size: 0.9rem;
+            color: #495057;
+            line-height: 1.4;
+        }
+        .card-actions-enterprise {
+            padding: 1.25rem;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .btn-enterprise {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+        }
+        .btn-enterprise.btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+        .btn-enterprise.btn-primary:hover {
+            background: var(--dark-green);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .btn-enterprise.btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        .btn-enterprise.btn-secondary:hover {
+            background: #e9ecef;
+            color: #495057;
+            transform: translateY(-1px);
+        }
         .quick-actions {
             display: flex;
             gap: 10px;
@@ -173,7 +364,7 @@
             <a class="nav-link active" href="/dashboard">
                 <i class="fas fa-home me-2"></i>Dashboard
             </a>
-            <a class="nav-link" href="/requests">
+            <a class="nav-link" href="/requisitions">
                 <i class="fas fa-clipboard-check me-2"></i>Review Requests
             </a>
             <a class="nav-link" href="/requests/new">
@@ -322,6 +513,7 @@
                                             <strong th:text="${request.item}">Item Name</strong>
                                             <span th:if="${request.walkIn}" class="badge badge-custom bg-info ms-2">Walk-in</span>
                                             <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
+                                            <span th:if="${request.estimatedCost}" class="text-muted"> • Cost: $<span th:text="${#numbers.formatDecimal(request.estimatedCost, 1, 2)}">0.00</span></span>
                                         </div>
                                     </td>
                                     <td>
@@ -345,7 +537,81 @@
                                     <td>
                                         <div class="quick-actions">
                                             <a th:href="@{/requests/review/{id}(id=${request.id})}" class="action-btn btn-success">
-                                                <i class="fas fa-eye"></i> Review
+                                                <i class="fas fa-clipboard-check"></i> Review
+                                            </a>
+                                            <a th:href="@{/requisitions/new-from-request/{id}(id=${request.id})}" class="action-btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-plus"></i> Create
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approved Requests Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <div>
+                    <i class="fas fa-check-circle me-2"></i>
+                    Approved Requests
+                </div>
+                <small class="opacity-75">Ready for procurement</small>
+            </div>
+            <div class="section-body">
+                <div th:if="${approvedRequests == null or approvedRequests.empty}" class="empty-state">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <h5>No Approved Requests</h5>
+                    <p class="mb-0">No requests have been approved yet.</p>
+                </div>
+                
+                <div th:if="${approvedRequests != null and !approvedRequests.empty}">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Request Details</th>
+                                    <th>Requester</th>
+                                    <th>Priority</th>
+                                    <th>Approved</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="request : ${approvedRequests}">
+                                    <td>
+                                        <div>
+                                            <strong th:text="${request.item}">Item Name</strong>
+                                            <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle me-2 text-muted"></i>
+                                            <div>
+                                                <span th:text="${request.user.username}">Username</span>
+                                                <br><small class="text-muted" th:text="${request.department.name}">Department</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom" 
+                                              th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                              th:text="${request.priority}">Priority</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</span>
+                                    </td>
+                                    <td>
+                                        <div class="quick-actions">
+                                            <a th:href="@{/requests/{id}(id=${request.id})}" class="action-btn btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <a th:href="@{/requisitions/send-to-procurement/{id}(id=${request.id})}" class="action-btn btn-success" onclick="return confirm('Send this request to procurement?')">
+                                                <i class="fas fa-paper-plane"></i> Send to Procurement
                                             </a>
                                         </div>
                                     </td>

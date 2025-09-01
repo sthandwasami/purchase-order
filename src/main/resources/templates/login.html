@@ -10,9 +10,7 @@
         :root {
             --primary-green: #025f46;
             --dark-green: #014d3a;
-            --light-green: #d1fae5;
             --accent-green: #059669;
-            --darker-green: #013b2e;
         }
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -23,74 +21,62 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: 2rem 0;
+            padding: 1rem 0;
         }
         .login-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             border: 1px solid #e2e8f0;
+            max-width: 500px;
+            width: 100%;
         }
         .login-header {
             background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
             color: white;
-            padding: 2.5rem 2rem;
+            padding: 2rem;
             text-align: center;
         }
         .login-header h2 {
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 0.5rem;
+            font-size: 1.75rem;
         }
         .btn-login {
-            background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+            background: var(--primary-green);
             border: none;
             color: white;
-            padding: 12px 30px;
-            font-weight: 600;
+            padding: 10px 20px;
+            font-weight: 500;
             transition: all 0.3s ease;
-            border-radius: 8px;
+            border-radius: 6px;
         }
         .btn-login:hover {
-            background: linear-gradient(135deg, var(--dark-green), var(--primary-green));
-            transform: translateY(-2px);
+            background: var(--dark-green);
+            transform: translateY(-1px);
             color: white;
         }
-        .form-control {
-            border-radius: 8px;
-            border: 2px solid #e2e8f0;
-            padding: 12px 16px;
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
             transition: all 0.3s ease;
         }
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: var(--primary-green);
-            box-shadow: 0 0 0 0.2rem rgba(2, 95, 70, 0.25);
-        }
-        .role-selector {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #e2e8f0;
-        }
-        .form-check-input:checked {
-            background-color: var(--primary-green);
-            border-color: var(--primary-green);
-        }
-        .form-check-label {
-            font-weight: 500;
-            cursor: pointer;
+            box-shadow: 0 0 0 0.2rem rgba(2, 95, 70, 0.15);
         }
         .company-logo {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
 <body>
 <div class="container-fluid login-container">
     <div class="row justify-content-center w-100">
-        <div class="col-md-6 col-lg-5 col-xl-4">
+        <div class="col-12 d-flex justify-content-center">
             <div class="login-card">
                 <div class="login-header">
                     <div class="company-logo">
@@ -137,65 +123,31 @@
                                    placeholder="Enter your password" required>
                         </div>
 
-                        <div class="role-selector">
-                            <label class="form-label fw-semibold mb-3">
+                        <div class="mb-3">
+                            <label for="loginType" class="form-label fw-semibold">
                                 <i class="fas fa-user-tag me-2"></i>Select Your Role
                             </label>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loginType" id="user" value="USER" checked>
-                                        <label class="form-check-label" for="user">
-                                            <i class="fas fa-user me-2"></i>User
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loginType" id="hod" value="HOD">
-                                        <label class="form-check-label" for="hod">
-                                            <i class="fas fa-user-tie me-2"></i>HOD
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loginType" id="approver" value="APPROVER">
-                                        <label class="form-check-label" for="approver">
-                                            <i class="fas fa-check-circle me-2"></i>Approver
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loginType" id="buyer" value="BUYER">
-                                        <label class="form-check-label" for="buyer">
-                                            <i class="fas fa-shopping-cart me-2"></i>Buyer
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                            <select class="form-select" id="loginType" name="loginType" required>
+                                <option value="USER" selected><i class="fas fa-user"></i> User</option>
+                                <option value="HOD"><i class="fas fa-user-tie"></i> HOD</option>
+                                <option value="APPROVER"><i class="fas fa-check-circle"></i> Approver</option>
+                                <option value="BUYER"><i class="fas fa-shopping-cart"></i> Buyer</option>
+                            </select>
                         </div>
                         
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-login btn-lg">
+                            <button type="submit" class="btn btn-login">
                                 <i class="fas fa-sign-in-alt me-2"></i>Login
                             </button>
                         </div>
                     </form>
 
                     <div class="text-center">
-                        <div class="mb-2">
-                            <a href="/" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-home me-1"></i>Back to Home
-                            </a>
-                        </div>
-                        <small class="text-muted">
-                            <i class="fas fa-shield-alt me-1"></i>
-                            Purchase Requisition System v2.0
-                        </small>
+                        <a href="/" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-home me-1"></i>Back to Home
+                        </a>
                     </div>
                 </div>
             </div>
