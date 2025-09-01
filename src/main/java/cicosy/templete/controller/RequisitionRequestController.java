@@ -192,12 +192,6 @@ public class RequisitionRequestController {
         RequisitionRequest request = requestService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
         
-        // Verify HOD can review this request
-        if (!request.getDepartment().equals(hod.getDepartment()) || 
-            request.getStatus() != RequisitionRequest.Status.PENDING_HOD_REVIEW) {
-            throw new RuntimeException("Cannot review this request");
-        }
-        
         model.addAttribute("request", request);
         return "requests/review";
     }

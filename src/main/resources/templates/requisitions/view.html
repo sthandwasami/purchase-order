@@ -12,7 +12,6 @@
             --dark-green: #014d3a;
             --light-green: #d1fae5;
             --accent-green: #059669;
-            --darker-green: #013b2e;
         }
         body {
             background-color: #f8f9fa;
@@ -26,20 +25,25 @@
         }
         .detail-card {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border: 1px solid #e9ecef;
             overflow: hidden;
+            margin-bottom: 2rem;
         }
         .card-header-custom {
             background: var(--primary-green);
             color: white;
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem;
             border: none;
+            font-weight: 600;
         }
         .detail-row {
             padding: 1rem 1.5rem;
             border-bottom: 1px solid #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .detail-row:last-child {
             border-bottom: none;
@@ -47,10 +51,11 @@
         .detail-label {
             font-weight: 600;
             color: #495057;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0;
         }
         .detail-value {
             color: #6c757d;
+            text-align: right;
         }
         .status-badge {
             padding: 8px 16px;
@@ -67,7 +72,7 @@
             transition: all 0.3s ease;
         }
         .btn-back:hover {
-            background: var(--darker-green);
+            background: var(--dark-green);
             color: white;
             transform: translateY(-1px);
         }
@@ -79,6 +84,38 @@
             border-bottom: 2px solid #dee2e6;
             font-weight: 600;
             color: #495057;
+            padding: 12px;
+        }
+        .items-table td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.25rem;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary-green);
         }
     </style>
 </head>
@@ -97,8 +134,8 @@
                     </p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="/dashboard" class="btn btn-back">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    <a href="/requisitions" class="btn btn-back">
+                        <i class="fas fa-arrow-left me-2"></i>Back to List
                     </a>
                 </div>
             </div>
@@ -106,15 +143,13 @@
     </div>
 
     <div class="container">
-        <div th:if="${requisition}" class="row justify-content-center">
+        <div th:if="${requisition}" class="row">
             <div class="col-lg-8">
                 <!-- Basic Information -->
-                <div class="detail-card mb-4">
+                <div class="detail-card">
                     <div class="card-header-custom">
-                        <h4 class="mb-0">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Basic Information
-                        </h4>
+                        <i class="fas fa-info-circle me-2"></i>
+                        Basic Information
                     </div>
                     <div class="card-body p-0">
                         <div class="detail-row">
@@ -157,12 +192,10 @@
                 </div>
 
                 <!-- Requester Information -->
-                <div class="detail-card mb-4">
+                <div class="detail-card">
                     <div class="card-header-custom">
-                        <h4 class="mb-0">
-                            <i class="fas fa-user me-2"></i>
-                            Requester Information
-                        </h4>
+                        <i class="fas fa-user me-2"></i>
+                        Requester Information
                     </div>
                     <div class="card-body p-0">
                         <div class="detail-row">
@@ -181,12 +214,10 @@
                 </div>
 
                 <!-- Items Information -->
-                <div class="detail-card mb-4" th:if="${requisition.items != null and !requisition.items.empty}">
+                <div class="detail-card" th:if="${requisition.items != null and !requisition.items.empty}">
                     <div class="card-header-custom">
-                        <h4 class="mb-0">
-                            <i class="fas fa-list me-2"></i>
-                            Requested Items
-                        </h4>
+                        <i class="fas fa-list me-2"></i>
+                        Requested Items
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -204,7 +235,7 @@
                                         <td>
                                             <strong th:text="${item.name}">Item Name</strong>
                                         </td>
-                                        <td th:text="${item.category ?: 'General'}">Category</td>
+                                        <td th:text="${item.category ?: 'N/A'}">Category</td>
                                         <td th:text="${item.quantity}">1</td>
                                         <td th:text="${item.specifications ?: 'No specifications'}">Specifications</td>
                                     </tr>
@@ -213,49 +244,67 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Rejection Reason (if applicable) -->
-                <div class="detail-card mb-4" th:if="${requisition.reasonForRejection}">
-                    <div class="card-header-custom bg-danger">
-                        <h4 class="mb-0">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Rejection Details
-                        </h4>
+            <div class="col-lg-4">
+                <!-- Status Timeline -->
+                <div class="detail-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-history me-2"></i>
+                        Status Timeline
                     </div>
-                    <div class="card-body p-0">
-                        <div class="detail-row">
-                            <div class="detail-label">Reason for Rejection</div>
-                            <div class="detail-value text-danger" th:text="${requisition.reasonForRejection}">Reason</div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <strong>Submitted</strong>
+                                <br><small class="text-muted" th:text="${#temporals.format(requisition.createdAt, 'MMM dd, yyyy HH:mm')}">Date</small>
+                            </div>
+                            <div class="timeline-item" th:if="${requisition.status.name() != 'PENDING_ADMIN_APPROVAL'}">
+                                <strong>Under Review</strong>
+                                <br><small class="text-muted">Processing...</small>
+                            </div>
+                            <div class="timeline-item" th:if="${requisition.status.name() == 'APPROVED_BY_ADMIN' or requisition.status.name() == 'REJECTED_BY_ADMIN'}">
+                                <strong th:text="${requisition.status.name() == 'APPROVED_BY_ADMIN'} ? 'Approved' : 'Rejected'">Status</strong>
+                                <br><small class="text-muted">Admin Decision</small>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="text-center mb-4">
-                    <a href="/dashboard" class="btn btn-back me-3">
-                        <i class="fas fa-home me-2"></i>Back to Dashboard
-                    </a>
-                    <a href="/requisitions" class="btn btn-outline-secondary">
-                        <i class="fas fa-list me-2"></i>All Requisitions
-                    </a>
+                <!-- Actions -->
+                <div class="detail-card" sec:authorize="hasRole('ADMIN')" th:if="${requisition.status.name() == 'PENDING_ADMIN_APPROVAL'}">
+                    <div class="card-header-custom">
+                        <i class="fas fa-cogs me-2"></i>
+                        Actions
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <form th:action="@{/requisitions/{id}/approve(id=${requisition.id})}" method="post">
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-check me-2"></i>Approve
+                                </button>
+                            </form>
+                            <form th:action="@{/requisitions/{id}/reject(id=${requisition.id})}" method="post">
+                                <div class="mb-2">
+                                    <input type="text" name="reason" class="form-control" placeholder="Reason for rejection" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="fas fa-times me-2"></i>Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Not Found Message -->
-        <div th:unless="${requisition}" class="row justify-content-center">
-            <div class="col-lg-6 text-center">
-                <div class="detail-card">
-                    <div class="card-body p-5">
-                        <i class="fas fa-exclamation-circle fa-4x text-muted mb-3"></i>
-                        <h3>Requisition Not Found</h3>
-                        <p class="text-muted mb-4">The requested requisition could not be found or you don't have permission to view it.</p>
-                        <a href="/dashboard" class="btn btn-back">
-                            <i class="fas fa-home me-2"></i>Back to Dashboard
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div th:unless="${requisition}" class="text-center py-5">
+            <i class="fas fa-exclamation-triangle fa-4x text-muted mb-3"></i>
+            <h4>Requisition Not Found</h4>
+            <p class="text-muted">The requested requisition could not be found.</p>
+            <a href="/requisitions" class="btn btn-back">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
         </div>
     </div>
 
