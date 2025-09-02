@@ -1,14 +1,5 @@
 <div th:fragment="header">
-    <header>
-        <h1>Requisition and Purchase Order Management System</h1>
-        <nav>
-            <a href="/dashboard">Dashboard</a>
-            <span sec:authorize="isAuthenticated()">
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <button type="submit">Logout</button>
-                </form>
-            </span>
-        </nav>
-        <link rel="stylesheet" th:href="@{/css/style.css}" />
-    </header>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </div>

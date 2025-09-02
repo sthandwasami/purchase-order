@@ -28,7 +28,9 @@ public class AuthController {
     public String login(@RequestParam(value = "error", required = false) String error,
                         @RequestParam(value = "logout", required = false) String logout,
                         Model model) {
-        if (error != null) { 
+        if ("role_mismatch".equals(error)) {
+            model.addAttribute("error", "Access denied. You selected the wrong role for your account.");
+        } else if (error != null) { 
             model.addAttribute("error", "Invalid username or password"); 
         }
         if (logout != null) { 

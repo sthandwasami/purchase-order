@@ -388,7 +388,11 @@
                     <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-home me-2"></i>Main Dashboard</a></li>
                     <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><form action="/logout" method="post" style="display:inline;"><button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></form></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" style="display:inline;">
+                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -422,7 +426,11 @@
                                 <li><a class="dropdown-item" href="/"><i class="fas fa-home me-2"></i>Home</a></li>
                                 <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><form action="/logout" method="post" style="display:inline;"><button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></form></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                                        <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -539,9 +547,6 @@
                                             <a th:href="@{/requests/review/{id}(id=${request.id})}" class="action-btn btn-success">
                                                 <i class="fas fa-clipboard-check"></i> Review
                                             </a>
-                                            <a th:href="@{/requisitions/new-from-request/{id}(id=${request.id})}" class="action-btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-plus"></i> Create
-                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -552,76 +557,7 @@
             </div>
         </div>
 
-        <!-- Approved Requests Section -->
-        <div class="content-section">
-            <div class="section-header">
-                <div>
-                    <i class="fas fa-check-circle me-2"></i>
-                    Approved Requests
-                </div>
-                <small class="opacity-75">Ready for procurement</small>
-            </div>
-            <div class="section-body">
-                <div th:if="${approvedRequests == null or approvedRequests.empty}" class="empty-state">
-                    <i class="fas fa-check-circle text-success"></i>
-                    <h5>No Approved Requests</h5>
-                    <p class="mb-0">No requests have been approved yet.</p>
-                </div>
-                
-                <div th:if="${approvedRequests != null and !approvedRequests.empty}">
-                    <div class="table-responsive">
-                        <table class="table table-custom">
-                            <thead>
-                                <tr>
-                                    <th>Request Details</th>
-                                    <th>Requester</th>
-                                    <th>Priority</th>
-                                    <th>Approved</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="request : ${approvedRequests}">
-                                    <td>
-                                        <div>
-                                            <strong th:text="${request.item}">Item Name</strong>
-                                            <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-user-circle me-2 text-muted"></i>
-                                            <div>
-                                                <span th:text="${request.user.username}">Username</span>
-                                                <br><small class="text-muted" th:text="${request.department.name}">Department</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-custom" 
-                                              th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-secondary')"
-                                              th:text="${request.priority}">Priority</span>
-                                    </td>
-                                    <td>
-                                        <span th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</span>
-                                    </td>
-                                    <td>
-                                        <div class="quick-actions">
-                                            <a th:href="@{/requests/{id}(id=${request.id})}" class="action-btn btn-outline-primary">
-                                                <i class="fas fa-eye"></i> View
-                                            </a>
-                                            <a th:href="@{/requisitions/send-to-procurement/{id}(id=${request.id})}" class="action-btn btn-success" onclick="return confirm('Send this request to procurement?')">
-                                                <i class="fas fa-paper-plane"></i> Send to Procurement
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- My Personal Requests Section -->
         <div class="content-section">

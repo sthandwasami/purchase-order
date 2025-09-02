@@ -1,8 +1,10 @@
 package cicosy.templete.config;
 
+import cicosy.templete.domain.CatalogueItem;
 import cicosy.templete.domain.Department;
 import cicosy.templete.domain.Supplier;
 import cicosy.templete.domain.User;
+import cicosy.templete.repository.CatalogueItemRepository;
 import cicosy.templete.repository.DepartmentRepository;
 import cicosy.templete.repository.SupplierRepository;
 import cicosy.templete.repository.UserRepository;
@@ -20,7 +22,7 @@ public class DataSeeder {
 
     @Bean
     CommandLineRunner seedData(UserRepository users, DepartmentRepository departments,
-                               SupplierRepository suppliers, PasswordEncoder encoder) {
+                               SupplierRepository suppliers, CatalogueItemRepository catalogueItems, PasswordEncoder encoder) {
         return args -> {
             if (users.count() == 0 && departments.count() == 0 && suppliers.count() == 0) {
                 logger.info("Seeding data...");
@@ -89,6 +91,47 @@ public class DataSeeder {
                 officeSupplier.setCategory("Stationery");
                 officeSupplier.setContactInfo("sales@officesupplies.com");
                 suppliers.save(officeSupplier);
+
+                // Create Catalogue Items
+                CatalogueItem laptop = new CatalogueItem();
+                laptop.setName("Dell Laptop");
+                laptop.setDescription("Dell Inspiron 15 3000 Series");
+                laptop.setCategory("Electronics");
+                laptop.setPrice(new java.math.BigDecimal("45000"));
+                laptop.setSpecifications("Intel i5, 8GB RAM, 256GB SSD");
+                catalogueItems.save(laptop);
+
+                CatalogueItem mouse = new CatalogueItem();
+                mouse.setName("Wireless Mouse");
+                mouse.setDescription("Logitech Wireless Mouse");
+                mouse.setCategory("Electronics");
+                mouse.setPrice(new java.math.BigDecimal("1500"));
+                mouse.setSpecifications("2.4GHz wireless, 1000 DPI");
+                catalogueItems.save(mouse);
+
+                CatalogueItem chair = new CatalogueItem();
+                chair.setName("Office Chair");
+                chair.setDescription("Ergonomic Office Chair");
+                chair.setCategory("Furniture");
+                chair.setPrice(new java.math.BigDecimal("8000"));
+                chair.setSpecifications("Adjustable height, lumbar support");
+                catalogueItems.save(chair);
+
+                CatalogueItem pen = new CatalogueItem();
+                pen.setName("Ball Point Pen");
+                pen.setDescription("Blue ink ball point pen");
+                pen.setCategory("Stationery");
+                pen.setPrice(new java.math.BigDecimal("10"));
+                pen.setSpecifications("0.7mm tip, blue ink");
+                catalogueItems.save(pen);
+
+                CatalogueItem notebook = new CatalogueItem();
+                notebook.setName("Spiral Notebook");
+                notebook.setDescription("A4 size spiral notebook");
+                notebook.setCategory("Stationery");
+                notebook.setPrice(new java.math.BigDecimal("50"));
+                notebook.setSpecifications("200 pages, ruled");
+                catalogueItems.save(notebook);
             }
         };
     }

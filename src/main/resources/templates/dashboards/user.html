@@ -68,16 +68,66 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
             overflow: hidden;
+            border-top: 2px solid #e9ecef;
         }
         .section-header {
-            background: var(--primary-green);
-            color: white;
+            background: #f8f9fa;
+            color: #495057;
             padding: 1rem 1.5rem;
             margin: 0;
             font-weight: 600;
+            border-bottom: 1px solid #e9ecef;
         }
         .section-body {
             padding: 1.5rem;
+        }
+        .process-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin: 2rem 0;
+        }
+        .process-step {
+            text-align: center;
+            position: relative;
+            flex: 1;
+        }
+        .process-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 35px;
+            right: -50%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--accent-green));
+            z-index: 1;
+        }
+        .step-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(2, 95, 70, 0.3);
+        }
+        .step-title {
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        .step-desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.4;
         }
         .btn-enterprise {
             background: var(--primary-green);
@@ -113,6 +163,9 @@
             <a class="nav-link" href="/requests/new">
                 <i class="fas fa-plus me-2"></i>New Request
             </a>
+            <a class="nav-link" href="/catalogue">
+                <i class="fas fa-book me-2"></i>Browse Catalogue
+            </a>
             <hr class="text-light">
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -121,7 +174,11 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><form action="/logout" method="post" style="display:inline;"><button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></form></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" style="display:inline;">
+                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -152,7 +209,11 @@
                                 <li><a class="dropdown-item" href="/"><i class="fas fa-home me-2"></i>Home</a></li>
                                 <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><form action="/logout" method="post" style="display:inline;"><button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></form></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                                        <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -209,176 +270,93 @@
                 </div>
             </div>
 
-            <!-- Top Row - Quick Actions and Guidelines -->
-            <div class="row mb-4">
-                <div class="col-lg-6">
-                    <!-- Quick Actions -->
-                    <div class="section-card h-100">
-                        <div class="section-header">
-                            <i class="fas fa-bolt me-2"></i>Quick Actions
-                        </div>
-                        <div class="section-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <a href="/requests/new" class="btn btn-enterprise w-100 py-3">
-                                        <i class="fas fa-plus fa-2x mb-2 d-block"></i>
-                                        <strong>New Request</strong>
-                                        <br><small>Submit a new procurement request</small>
-                                    </a>
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="/requests" class="btn btn-outline-secondary w-100 py-3">
-                                        <i class="fas fa-list fa-2x mb-2 d-block"></i>
-                                        <strong>View All</strong>
-                                        <br><small>See all your requests</small>
-                                    </a>
-                                </div>
+            <!-- Requisition Process Flow -->
+            <div class="section-card mb-4">
+                <div class="section-header">
+                    <i class="fas fa-route me-2"></i>Requisition Process Flow
+                </div>
+                <div class="section-body">
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-circle">
+                                <i class="fas fa-edit"></i>
                             </div>
+                            <div class="step-title">Submit Request</div>
+                            <div class="step-desc">Create and submit your procurement request with all required details</div>
+                        </div>
+                        <div class="process-step">
+                            <div class="step-circle">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="step-title">HOD Review</div>
+                            <div class="step-desc">Department head reviews and approves or rejects the request</div>
+                        </div>
+                        <div class="process-step">
+                            <div class="step-circle">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="step-title">Budget Approval</div>
+                            <div class="step-desc">Budget team verifies funds availability and approves</div>
+                        </div>
+                        <div class="process-step">
+                            <div class="step-circle">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="step-title">Procurement</div>
+                            <div class="step-desc">Purchase team processes order and arranges delivery</div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="col-lg-6">
-                    <!-- Request Guidelines -->
-                    <div class="section-card h-100">
-                        <div class="section-header">
-                            <i class="fas fa-info-circle me-2"></i>Request Process
-                        </div>
-                        <div class="section-body">
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="process-step mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 0.8rem;">1</div>
-                                            <small class="fw-bold">Submit Request</small>
-                                        </div>
-                                    </div>
-                                    <div class="process-step mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 0.8rem;">2</div>
-                                            <small class="fw-bold">HOD Review</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="process-step mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 0.8rem;">3</div>
-                                            <small class="fw-bold">Budget Approval</small>
-                                        </div>
-                                    </div>
-                                    <div class="process-step mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 0.8rem;">4</div>
-                                            <small class="fw-bold">Procurement</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="alert alert-info mb-0 mt-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-clock me-2"></i>
-                                    <div>
-                                        <small class="fw-bold">Average Processing Time: 2-3 business days</small>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="text-center mt-4">
+                        <div class="alert alert-info d-inline-block mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>Average Processing Time: 2-3 business days</strong>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Content Row -->
-            <div class="row">
-                <!-- My Requests - Now takes full width -->
-                <div class="col-lg-8">
-                    <div class="section-card">
-                        <div class="section-header">
-                            <i class="fas fa-list me-2"></i>
-                            My Requests
-                            <small class="float-end opacity-75">Track your submitted requests</small>
-                        </div>
-                        <div class="section-body">
-                            <div th:if="${myRequests == null or myRequests.empty}" class="text-center py-5">
-                                <i class="fas fa-plus-circle fa-4x text-muted mb-3"></i>
-                                <h4>No Requests Yet</h4>
-                                <p class="text-muted">You haven't submitted any requests. Click the button above to create your first request.</p>
-                            </div>
-                            <div th:if="${myRequests != null and !myRequests.empty}">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Request ID</th>
-                                                <th>Item</th>
-                                                <th>Priority</th>
-                                                <th>Status</th>
-                                                <th>Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="request : ${myRequests}">
-                                                <td>
-                                                    <strong th:text="'REQ-' + ${request.id}">#REQ-001</strong>
-                                                </td>
-                                                <td>
-                                                    <strong th:text="${request.item}">Item</strong>
-                                                    <br><small class="text-muted">Qty: <span th:text="${request.quantity}">1</span></small>
-                                                </td>
-                                                <td>
-                                                    <span class="badge" 
-                                                          th:classappend="${request.priority.name() == 'HIGH'} ? 'bg-danger' : (${request.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-secondary')"
-                                                          th:text="${request.priority}">Priority</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge" 
-                                                          th:classappend="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'bg-warning text-dark' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'bg-success' : 'bg-danger')"
-                                                          th:text="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'Pending Review' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'Approved' : 'Rejected')">Status</span>
-                                                </td>
-                                                <td th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</td>
-                                                <td>
-                                                    <a th:href="@{/requests/{id}(id=${request.id})}" class="btn btn-outline-primary btn-sm">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Recent Activity -->
+            <div class="section-card">
+                <div class="section-header">
+                    <i class="fas fa-history me-2"></i>Recent Activity
+                    <div class="float-end">
+                        <a href="/requests/new" class="btn btn-enterprise btn-sm">
+                            <i class="fas fa-plus me-1"></i>New Request
+                        </a>
+                        <a href="/catalogue" class="btn btn-outline-primary btn-sm ms-2">
+                            <i class="fas fa-book me-1"></i>Browse Catalogue
+                        </a>
+                        <a href="/requests" class="btn btn-outline-secondary btn-sm ms-2">
+                            <i class="fas fa-list me-1"></i>View All
+                        </a>
                     </div>
                 </div>
-
-                <!-- Recent Activity Sidebar -->
-                <div class="col-lg-4">
-                    <div class="section-card" th:if="${myRequests != null and !myRequests.empty}">
-                        <div class="section-header">
-                            <i class="fas fa-history me-2"></i>Recent Activity
-                        </div>
-                        <div class="section-body">
-                            <div th:each="request, requestStat : ${myRequests}" th:if="${requestStat.index < 5}" class="activity-item">
-                                <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
-                                    <div class="activity-icon rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                         style="width: 36px; height: 36px;"
-                                         th:classappend="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'bg-warning' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'bg-success' : 'bg-danger')">
-                                        <i class="fas fa-file-alt text-white" style="font-size: 0.8rem;"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="d-flex justify-content-between align-items-start mb-1">
-                                            <small class="fw-bold">REQ-<span th:text="${request.id}">001</span></small>
-                                            <span class="badge" style="font-size: 0.65rem;"
+                <div class="section-body">
+                    <div th:if="${myRequests == null or myRequests.empty}" class="text-center py-5">
+                        <i class="fas fa-plus-circle fa-4x text-muted mb-3"></i>
+                        <h4>No Requests Yet</h4>
+                        <p class="text-muted">You haven't submitted any requests. Click the "New Request" button to create your first request.</p>
+                    </div>
+                    <div th:if="${myRequests != null and !myRequests.empty}">
+                        <div class="row">
+                            <div th:each="request, requestStat : ${myRequests}" th:if="${requestStat.index < 6}" class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-0">REQ-<span th:text="${request.id}">001</span></h6>
+                                            <span class="badge" 
                                                   th:classappend="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'bg-warning text-dark' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'bg-success' : 'bg-danger')"
                                                   th:text="${request.status.name() == 'PENDING_HOD_REVIEW'} ? 'Pending' : (${request.status.name() == 'APPROVED_BY_HOD'} ? 'Approved' : 'Rejected')">Status</span>
                                         </div>
-                                        <p class="mb-1 small" th:text="${request.item}">Item</p>
-                                        <small class="text-muted" th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</small>
+                                        <p class="card-text small" th:text="${request.item}">Item</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted" th:text="${#temporals.format(request.createdAt, 'MMM dd, yyyy')}">Date</small>
+                                            <a th:href="@{/requests/{id}(id=${request.id})}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div th:if="${myRequests.size() == 0}" class="text-center py-3">
-                                <small class="text-muted">No recent activity</small>
                             </div>
                         </div>
                     </div>

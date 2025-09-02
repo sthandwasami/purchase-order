@@ -18,10 +18,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationSuccessHandler successHandler;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Autowired
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomAuthenticationSuccessHandler successHandler, CustomAccessDeniedHandler accessDeniedHandler) {
         this.userDetailsService = userDetailsService;
+        this.successHandler = successHandler;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -38,16 +42,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/", "/home", "/signup", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login").permitAll()
-                .requestMatchers("/profile", "/settings", "/reports/**").authenticated()
-                .requestMatchers("/requests/**").hasAnyRole("USER", "HOD")
-                .requestMatchers("/requisitions/budget-review/**").hasRole("APPROVER")
-                .requestMatchers("/requisitions/**", "/purchase-orders/**").authenticated()
+                .requestMatchers("/dashboard").authenticated()
+                .requestMatchers("/requests/**", "/catalogue/**").hasAnyRole("USER", "HOD")
+                .requestMatchers("/requisitions/budget-review/**", "/requisitions/pending/**").hasRole("APPROVER")
+                .requestMatchers("/requisitions/**").hasAnyRole("ADMIN", "HOD")
+                .requestMatchers("/purchase-orders/**", "/po/**").hasRole("BUYER")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/dashboard", true)
+                .successHandler(successHandler)
                 .failureUrl("/login?error=true")
                 .usernameParameter("username")
                 .passwordParameter("password")
@@ -60,6 +65,7 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
+            .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
             .userDetailsService(userDetailsService);
 
         return http.build();
